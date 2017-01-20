@@ -28,5 +28,5 @@ type InnerStackTrace struct {
 
 	Message string `json:"message,omitempty"`
 
-	TraceLines []StackTraceLine `json:"traceLines,omitempty"`
+	TraceLines StackTraceLines `json:"traceLines,omitempty"`
 }

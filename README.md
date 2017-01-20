@@ -17,6 +17,9 @@ Put the packages under your project folder and add the following in import:
 There are a few options (illustrated below with comment Option-#) to send events to Trakerr. The easiest of
 which is to send only errors to Trakerr (Option-1).
 
+### Creating a new client
+
+
 ```$golang
 package main
 
@@ -27,14 +30,24 @@ import (
 
 func main() {
 	client := trakerr.NewTrakerrClientWithDefaults(
-		"ceba200baf79b1b5e9dc73d4054d6c9618388477122",
-		"http://192.168.0.117:3000/api/v1",
+		"<replace with your API key>",
 		"1.0",
 		"development")
+    ...
+}
+```
+
+### Option-1: Send an error to trakerr programmatically
+```$golang
 	err := errors.New("Something bad happened here")
 
 	// Option-1: send error
 	client.SendError(err)
+```
+
+### Option-2: Send an error to trakerr programmatically with custom properties
+```$golang
+	err := errors.New("Something bad happened here")
 
 	// Option-2: send error with custom properties
 	appEventWithErr := client.CreateAppEventFromError(err)
@@ -44,6 +57,11 @@ func main() {
 	appEventWithErr.CustomProperties.StringData.CustomData2 = "bar"
 
 	client.SendEvent(appEventWithErr)
+```
+
+### Option-3: Send an event including non-exceptions to Trakerr
+```$golang
+	err := errors.New("Something bad happened here")
 
 	// Option-3: send event manually
 	appEvent := client.NewAppEvent("Info", "SomeType", "SomeMessage")
@@ -53,12 +71,11 @@ func main() {
 	appEvent.CustomProperties.StringData.CustomData2 = "bar"
 
 	client.SendEvent(appEvent)
-}
 ```
 
 ## Documentation For Models
 
- - [AppEvent](src/trakerr_client/docs/AppEvent.md)
+ - [AppEvent](https://github.com/trakerr-io/trakerr-go/blob/master/src/trakerr_client/docs/AppEvent.md)
 
 
 

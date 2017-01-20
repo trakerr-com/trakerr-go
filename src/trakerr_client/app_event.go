@@ -39,7 +39,7 @@ type AppEvent struct {
 	// (optional) event time in ms since epoch
 	EventTime int64 `json:"eventTime,omitempty"`
 
-	EventStacktrace []InnerStackTrace `json:"eventStacktrace,omitempty"`
+	EventStacktrace Stacktrace `json:"eventStacktrace,omitempty"`
 
 	// (optional) event user identifying a user
 	EventUser string `json:"eventUser,omitempty"`

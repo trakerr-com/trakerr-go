@@ -26,13 +26,11 @@ type TrakerrClient struct {
 // Create a new TrakerrClient and return it with the data.
 //
 // Most parameters are optional i.e. empty (pass "" to use defaults) with the exception of apiKey which is required.
-// url is the location of the serverr service, if "" is passed it defaults to https://trakerr.io/api/v1
 func NewTrakerrClientWithDefaults(
 	apiKey string,
-	url string,
 	contextAppVersion string,
 	contextEnvName string) *TrakerrClient {
-	return NewTrakerrClient(apiKey, url, contextAppVersion, contextEnvName, "", "", "", "", "", "")
+	return NewTrakerrClient(apiKey, "", contextAppVersion, contextEnvName, "", "", "", "", "", "")
 }
 
 // Create a new TrakerrClient and return it with the data.
