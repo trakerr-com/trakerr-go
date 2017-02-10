@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-package trakerr_client
+package trakerr
 
 import (
 	"net/url"

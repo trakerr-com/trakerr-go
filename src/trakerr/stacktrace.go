@@ -20,27 +20,7 @@
  * limitations under the License.
  */
 
-package trakerr_client
+package trakerr
 
-type CustomStringData struct {
-
-	CustomData1 string `json:"customData1,omitempty"`
-
-	CustomData2 string `json:"customData2,omitempty"`
-
-	CustomData3 string `json:"customData3,omitempty"`
-
-	CustomData4 string `json:"customData4,omitempty"`
-
-	CustomData5 string `json:"customData5,omitempty"`
-
-	CustomData6 string `json:"customData6,omitempty"`
-
-	CustomData7 string `json:"customData7,omitempty"`
-
-	CustomData8 string `json:"customData8,omitempty"`
-
-	CustomData9 string `json:"customData9,omitempty"`
-
-	CustomData10 string `json:"customData10,omitempty"`
+type Stacktrace struct {
 }

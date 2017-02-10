@@ -20,25 +20,27 @@
  * limitations under the License.
  */
 
-package trakerr_client
+package trakerr
 
-import (
-	"net/http"
-)
+type CustomDoubleData struct {
 
-type APIResponse struct {
-	*http.Response
-	Message string `json:"message,omitempty"`
-}
+	CustomData1 float64 `json:"customData1,omitempty"`
 
-func NewAPIResponse(r *http.Response) *APIResponse {
+	CustomData2 float64 `json:"customData2,omitempty"`
 
-	response := &APIResponse{Response: r}
-	return response
-}
+	CustomData3 float64 `json:"customData3,omitempty"`
 
-func NewAPIResponseWithError(errorMessage string) *APIResponse {
+	CustomData4 float64 `json:"customData4,omitempty"`
 
-	response := &APIResponse{Message: errorMessage}
-	return response
+	CustomData5 float64 `json:"customData5,omitempty"`
+
+	CustomData6 float64 `json:"customData6,omitempty"`
+
+	CustomData7 float64 `json:"customData7,omitempty"`
+
+	CustomData8 float64 `json:"customData8,omitempty"`
+
+	CustomData9 float64 `json:"customData9,omitempty"`
+
+	CustomData10 float64 `json:"customData10,omitempty"`
 }

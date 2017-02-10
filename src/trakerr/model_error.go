@@ -20,27 +20,13 @@
  * limitations under the License.
  */
 
-package trakerr_client
+package trakerr
 
-type CustomDoubleData struct {
+type ModelError struct {
 
-	CustomData1 float64 `json:"customData1,omitempty"`
+	Code int32 `json:"code,omitempty"`
 
-	CustomData2 float64 `json:"customData2,omitempty"`
+	Message string `json:"message,omitempty"`
 
-	CustomData3 float64 `json:"customData3,omitempty"`
-
-	CustomData4 float64 `json:"customData4,omitempty"`
-
-	CustomData5 float64 `json:"customData5,omitempty"`
-
-	CustomData6 float64 `json:"customData6,omitempty"`
-
-	CustomData7 float64 `json:"customData7,omitempty"`
-
-	CustomData8 float64 `json:"customData8,omitempty"`
-
-	CustomData9 float64 `json:"customData9,omitempty"`
-
-	CustomData10 float64 `json:"customData10,omitempty"`
+	Fields string `json:"fields,omitempty"`
 }

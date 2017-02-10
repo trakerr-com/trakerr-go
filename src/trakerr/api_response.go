@@ -20,12 +20,25 @@
  * limitations under the License.
  */
 
-package trakerr_client
+package trakerr
 
-// (optional) Custom string or double data to submit along with the event. This data can then be used in the Trakerr UI to view segmented data.
-type CustomData struct {
+import (
+	"net/http"
+)
 
-	StringData CustomStringData `json:"stringData,omitempty"`
+type APIResponse struct {
+	*http.Response
+	Message string `json:"message,omitempty"`
+}
 
-	DoubleData CustomDoubleData `json:"doubleData,omitempty"`
+func NewAPIResponse(r *http.Response) *APIResponse {
+
+	response := &APIResponse{Response: r}
+	return response
+}
+
+func NewAPIResponseWithError(errorMessage string) *APIResponse {
+
+	response := &APIResponse{Message: errorMessage}
+	return response
 }

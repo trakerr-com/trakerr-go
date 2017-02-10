@@ -20,13 +20,13 @@
  * limitations under the License.
  */
 
-package trakerr_client
+package trakerr
 
-type ModelError struct {
+type InnerStackTrace struct {
 
-	Code int32 `json:"code,omitempty"`
+	Type_ string `json:"type,omitempty"`
 
 	Message string `json:"message,omitempty"`
 
-	Fields string `json:"fields,omitempty"`
+	TraceLines []StackTraceLine `json:"traceLines,omitempty"`
 }

@@ -20,7 +20,12 @@
  * limitations under the License.
  */
 
-package trakerr_client
+package trakerr
 
-type StackTraceLines struct {
+// (optional) Custom string or double data to submit along with the event. This data can then be used in the Trakerr UI to view segmented data.
+type CustomData struct {
+
+	StringData CustomStringData `json:"stringData,omitempty"`
+
+	DoubleData CustomDoubleData `json:"doubleData,omitempty"`
 }

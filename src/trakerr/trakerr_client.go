@@ -1,7 +1,6 @@
 package trakerr
 
 import (
-	"trakerr_client"
 	"os"
 	"runtime"
 	"time"
@@ -19,7 +18,7 @@ type TrakerrClient struct {
 	contextAppOSVersion     string
 	contextDataCenter       string
 	contextDataCenterRegion string
-	eventsApi               trakerr_client.EventsApi
+	eventsApi               EventsApi
 	eventTraceBuilder       EventTraceBuilder
 }
 
@@ -57,12 +56,12 @@ func NewTrakerrClient(
 		contextAppOS = runtime.GOOS
 		contextAppOSVersion = "N/A (arch:" + runtime.GOARCH + ")"
 	}
-	var eventsApi trakerr_client.EventsApi
+	var eventsApi EventsApi
 
 	if url != "" {
-		eventsApi = *trakerr_client.NewEventsApiWithBasePath(url);
+		eventsApi = *NewEventsApiWithBasePath(url);
 	} else {
-		eventsApi = *trakerr_client.NewEventsApi()
+		eventsApi = *NewEventsApi()
 	}
 
 	return &TrakerrClient{
@@ -80,26 +79,26 @@ func NewTrakerrClient(
 		eventTraceBuilder: EventTraceBuilder{} }
 }
 
-func (trakerrClient *TrakerrClient) NewAppEvent(classification string, eventType string, eventMessage string) *trakerr_client.AppEvent {
+func (trakerrClient *TrakerrClient) NewAppEvent(classification string, eventType string, eventMessage string) *AppEvent {
 	if classification == "" { classification = "Error" }
 	if eventType == "" { eventType = "unknown" }
 	if eventMessage == "" { eventMessage = "unknown "}
-	return trakerrClient.FillDefaults(&trakerr_client.AppEvent{Classification: classification, EventType:eventType, EventMessage: eventMessage })
+	return trakerrClient.FillDefaults(&AppEvent{Classification: classification, EventType:eventType, EventMessage: eventMessage })
 }
 
-func (trakerrClient *TrakerrClient) SendEvent(appEvent *trakerr_client.AppEvent) (*trakerr_client.APIResponse, error) {
+func (trakerrClient *TrakerrClient) SendEvent(appEvent *AppEvent) (*APIResponse, error) {
 	return trakerrClient.eventsApi.EventsPost(*trakerrClient.FillDefaults(appEvent))
 }
 
-func (trakerrClient *TrakerrClient) SendError(err interface{}) (*trakerr_client.APIResponse, error) {
+func (trakerrClient *TrakerrClient) SendError(err interface{}) (*APIResponse, error) {
 	appEvent := trakerrClient.CreateAppEventFromError(err)
 
 	return trakerrClient.eventsApi.EventsPost(*appEvent)
 }
 
-func (trakerrClient *TrakerrClient) CreateAppEventFromError(err interface{}) *trakerr_client.AppEvent {
+func (trakerrClient *TrakerrClient) CreateAppEventFromError(err interface{}) *AppEvent {
 	stacktrace := trakerrClient.eventTraceBuilder.GetEventTraces(err, 4)
-	event := trakerr_client.AppEvent{}
+	event := AppEvent{}
 	event.EventType = fmt.Sprintf("%T", err)
 	event.EventMessage = fmt.Sprint(err)
 	event.Classification = "Error"
@@ -109,7 +108,7 @@ func (trakerrClient *TrakerrClient) CreateAppEventFromError(err interface{}) *tr
 	return result
 }
 
-func (trakerrClient *TrakerrClient) FillDefaults(appEvent *trakerr_client.AppEvent) *trakerr_client.AppEvent {
+func (trakerrClient *TrakerrClient) FillDefaults(appEvent *AppEvent) *AppEvent {
 	if appEvent.ApiKey == "" {
 		appEvent.ApiKey = trakerrClient.apiKey
 	}
