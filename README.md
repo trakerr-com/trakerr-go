@@ -8,14 +8,14 @@ Get your application events and errors to Trakerr via the *Trakerr API*.
 
 ## Installation
 From the root directory issue the following
-```
+```bash
     go get github.com/trakerr-io/trakerr-go/src/trakerr
 ```
 
 And then in your imports add this
 
-```
-    "github.com/trakerr-io/trakerr-go/src/trakerr"
+```golang
+    import "github.com/trakerr-io/trakerr-go/src/trakerr"
 
 ```
 ## Getting Started
@@ -26,7 +26,7 @@ which is to send only errors to Trakerr (Option-1).
 ### Creating a new client
 
 
-```$golang
+```golang
 package main
 
 import (
@@ -44,7 +44,7 @@ func main() {
 ```
 
 ### Option-1: Send an error to trakerr programmatically
-```$golang
+```golang
 	err := errors.New("Something bad happened here")
 
 	// Option-1: send error
@@ -52,7 +52,7 @@ func main() {
 ```
 
 ### Option-2: Send an error to trakerr programmatically with custom properties
-```$golang
+```golang
 	err := errors.New("Something bad happened here")
 
 	// Option-2: send error with custom properties
@@ -66,7 +66,7 @@ func main() {
 ```
 
 ### Option-3: Send an event including non-exceptions to Trakerr
-```$golang
+```golang
 	err := errors.New("Something bad happened here")
 
 	// Option-3: send event manually
@@ -78,6 +78,43 @@ func main() {
 
 	client.SendEvent(appEvent)
 ```
+
+## Initializing Trakerr
+Due to the nature of golang, Trakerr can be initialized in one of two ways. The first way with defaults, is relatively self explanatory.
+```golang
+client := trakerr.NewTrakerrClientWithDefaults(
+		"API key",
+		"ContextAppVersion",
+		"ContextEnvName")
+```
+The ContextEnvName name is intended to be used as a string identifier as to what your codebase is for; release, development, prototype. You can use it for whatever you denote as useful. The ContextApp Version is useful for a codebase version identifier, or perhaps some other useful metric for the error.
+
+Looking at the second call we're exposed to a lot of what the first call defaults.
+
+```golang
+    client := trakerr.NewTrakerrClient(
+        "API Key Here",
+        "URL",
+        "ContextAppVersion",
+        "ContextEnvName",
+        "ContextEnvHostName",
+        "ContextAppos",
+        "ContextApposVersion",
+        "ContextDataCenter",
+        "ContextDataCenterRegion")
+```
+A lot of these are populated by default value by the first call, but you can populate them with whatever string data you want. Here is an indepth look at each of those.
+
+Name | Type | Description 
+------------ | ------------- | ------------- 
+**ApiKey** | **string** | API key generated for the application
+**URL** | **string** | The URL to send to. You will mostly want to leave this empty string to send to trakerr.
+**ContextAppVersion** | **string** | (optional) application version information.
+**ContextEnvName** | **string** | (optional) one of development, staging, production; or a custom string.
+**ContextEnvHostname** | **string** | (optional) hostname or ID of environment.
+**ContextAppOS** | **string** | (optional) OS the application is running on.
+**ContextDataCenter** | **string** | (optional) Data center the application is running on or connected to.
+**ContextDataCenterRegion** | **string** | (optional) Data center region.
 
 ## Documentation For Models
 
