@@ -7,7 +7,7 @@ import (
 
 func main() {
 	client := trakerr.NewTrakerrClientWithDefaults(
-		"ceba200baf79b1b5e9dc73d4054d6c9618388477122",
+		"API Key Here",
 		"1.0",
 		"development")
 	err := errors.New("Something bad happened here")
