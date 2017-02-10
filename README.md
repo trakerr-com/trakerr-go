@@ -7,11 +7,17 @@ Get your application events and errors to Trakerr via the *Trakerr API*.
 - Package version: 1.0.0
 
 ## Installation
-Put the packages under your project folder and add the following in import:
+From the root directory issue the following
 ```
-    "trakerr"
+    go get github.com/trakerr-io/trakerr-go/src/trakerr
 ```
 
+And then in your imports add this
+
+```
+    "github.com/trakerr-io/trakerr-go/src/trakerr"
+
+```
 ## Getting Started
 
 There are a few options (illustrated below with comment Option-#) to send events to Trakerr. The easiest of
@@ -24,7 +30,7 @@ which is to send only errors to Trakerr (Option-1).
 package main
 
 import (
-	"trakerr"
+	"github.com/trakerr-io/trakerr-go/src/trakerr"
 	"errors"
 )
 

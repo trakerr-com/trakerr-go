@@ -1,14 +1,13 @@
 package main
 
 import (
-	"trakerr"
+	"github.com/trakerr-io/trakerr-go/src/trakerr"
 	"errors"
 )
 
 func main() {
 	client := trakerr.NewTrakerrClientWithDefaults(
 		"ceba200baf79b1b5e9dc73d4054d6c9618388477122",
-		"http://192.168.0.117:3000/api/v1",
 		"1.0",
 		"development")
 	err := errors.New("Something bad happened here")
