@@ -81,7 +81,7 @@ func main() {
 
 ## Documentation For Models
 
- - [AppEvent](https://github.com/trakerr-io/trakerr-go/blob/master/src/trakerr_client/docs/AppEvent.md)
+ - [AppEvent](https://github.com/trakerr-io/trakerr-go/blob/master/src/trakerr/docs/AppEvent.md)
 
 
 
