@@ -108,7 +108,7 @@ A lot of these are populated by default value by the first call, but you can pop
 Name | Type | Description | Notes
 ------------ | ------------- | -------------  | -------------
 **ApiKey** | **string** | API key generated for the application | 
-**URL** | **string** |(optional) The URL to send to. You will mostly want to leave this empty string to send to trakerr. | [optional if passed `""`] Default value: "1.0"
+**URL** | **string** |(optional) The URL to send to. You will mostly want to leave this empty string to send to trakerr. | [optional if passed `""`]
 **ContextAppVersion** | **string** | (optional) application version information. | [optional if passed `""`] Default value: "1.0" 
 **ContextEnvName** | **string** | (optional) one of development, staging, production; or a custom string. | [optional if passed `""`] Default Value: "develoment"
 **ContextEnvHostname** | **string** | (optional) hostname or ID of environment. | [optional if passed `""`] Default value: os.hostname()
