@@ -105,17 +105,18 @@ Looking at the second call we're exposed to a lot of what the first call default
 ```
 A lot of these are populated by default value by the first call, but you can populate them with whatever string data you want. Here is an indepth look at each of those.
 
-Name | Type | Description 
------------- | ------------- | ------------- 
-**ApiKey** | **string** | API key generated for the application
-**URL** | **string** | The URL to send to. You will mostly want to leave this empty string to send to trakerr.
-**ContextAppVersion** | **string** | (optional) application version information.
-**ContextEnvName** | **string** | (optional) one of development, staging, production; or a custom string.
-**ContextEnvHostname** | **string** | (optional) hostname or ID of environment.
-**ContextAppOS** | **string** | (optional) OS the application is running on.
-**ContextAppOSVersion** | **string** | (optional) OS Version the application is running on.
-**ContextDataCenter** | **string** | (optional) Data center the application is running on or connected to.
-**ContextDataCenterRegion** | **string** | (optional) Data center region.
+Name | Type | Description | Notes
+------------ | ------------- | -------------  | -------------
+**ApiKey** | **string** | API key generated for the application | 
+**URL** | **string** |(optional) The URL to send to. You will mostly want to leave this empty string to send to trakerr. | [optional if passed `""`] Default value: "1.0"
+**ContextAppVersion** | **string** | (optional) application version information. | [optional if passed `""`] Default value: "1.0" 
+**ContextEnvName** | **string** | (optional) one of development, staging, production; or a custom string. | [optional if passed `""`] Default Value: "develoment"
+**ContextEnvHostname** | **string** | (optional) hostname or ID of environment. | [optional if passed `""`] Default value: os.hostname()
+**ContextAppOS** | **string** | (optional) OS the application is running on. | [optional if passed `""`] Default value: OS name (ie. Windows, MacOS) (Currently being reworked).
+**ContextAppOSVersion** | **string** | (optional) OS Version the application is running on. | [optional if passed `""`] Default value: System architecture string (Currently being reworked).
+**ContextDataCenter** | **string** | (optional) Data center the application is running on or connected to. | [optional if passed `""`]
+**ContextDataCenterRegion** | **string** | (optional) Data center region. | [optional if passed `""`]
+
 
 ## Documentation For Models
 
