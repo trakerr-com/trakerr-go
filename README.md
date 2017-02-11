@@ -113,6 +113,7 @@ Name | Type | Description
 **ContextEnvName** | **string** | (optional) one of development, staging, production; or a custom string.
 **ContextEnvHostname** | **string** | (optional) hostname or ID of environment.
 **ContextAppOS** | **string** | (optional) OS the application is running on.
+**ContextAppOSVersion** | **string** | (optional) OS Version the application is running on.
 **ContextDataCenter** | **string** | (optional) Data center the application is running on or connected to.
 **ContextDataCenterRegion** | **string** | (optional) Data center region.
 
