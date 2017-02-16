@@ -2,3 +2,6 @@
 .DS_Store
 .idea
 pkg
+src/.vscode/launch.json
+src/trakerr/.project
+src/trakerr/.settings/org.eclipse.m2e.core.prefs
