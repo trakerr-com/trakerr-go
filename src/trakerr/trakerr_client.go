@@ -21,7 +21,7 @@ type TrakerrClient struct {
 	contextAppOSVersion     string
 	contextDataCenter       string
 	contextDataCenterRegion string
-	eventsAPI               eventsAPI
+	eventsAPI               EventsAPI
 	eventTraceBuilder       EventTraceBuilder
 }
 
@@ -63,12 +63,12 @@ func NewTrakerrClient(
 		contextAppOS = runtime.GOOS
 		contextAppOSVersion = "N/A (arch:" + runtime.GOARCH + ")"
 	}
-	var eventsAPI eventsAPI
+	var eventsAPI EventsAPI
 
 	if url != "" {
-		eventsAPI = *NeweventsAPIWithBasePath(url)
+		eventsAPI = *NewEventsAPIWithBasePath(url)
 	} else {
-		eventsAPI = *NeweventsAPI()
+		eventsAPI = *NewEventsAPI()
 	}
 
 	return &TrakerrClient{

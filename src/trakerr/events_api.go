@@ -26,22 +26,22 @@ import (
 	"net/url"
 )
 
-type eventsAPI struct {
+type EventsAPI struct {
 	Configuration Configuration
 }
 
-func NeweventsAPI() *eventsAPI {
+func NewEventsAPI() *EventsAPI {
 	configuration := NewConfiguration()
-	return &eventsAPI{
+	return &EventsAPI{
 		Configuration: *configuration,
 	}
 }
 
-func NeweventsAPIWithBasePath(basePath string) *eventsAPI {
+func NewEventsAPIWithBasePath(basePath string) *EventsAPI {
 	configuration := NewConfiguration()
 	configuration.BasePath = basePath
 
-	return &eventsAPI{
+	return &EventsAPI{
 		Configuration: *configuration,
 	}
 }
@@ -53,7 +53,7 @@ func NeweventsAPIWithBasePath(basePath string) *eventsAPI {
  * @param data Event to submit
  * @return void
  */
-func (a eventsAPI) EventsPost(data AppEvent) (*APIResponse, error) {
+func (a EventsAPI) EventsPost(data AppEvent) (*APIResponse, error) {
 
 	var httpMethod = "Post"
 	// create path and map variables
