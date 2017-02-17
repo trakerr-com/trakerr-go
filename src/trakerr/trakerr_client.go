@@ -105,11 +105,6 @@ func (trakerrClient *TrakerrClient) SendEvent(appEvent *AppEvent) (*APIResponse,
 	return trakerrClient.eventsAPI.EventsPost(*trakerrClient.FillDefaults(appEvent))
 }
 
-//SendErrorWithAppEvent ...
-func (trakerrClient *TrakerrClient) SendErrorWithAppEvent(appEvent *AppEvent) (*APIResponse, error) {
-	return trakerrClient.eventsAPI.EventsPost(*trakerrClient.FillDefaults(appEvent))
-}
-
 //SendError ...
 func (trakerrClient *TrakerrClient) SendError(err interface{}, skip int) (*APIResponse, error) {
 	appEvent := trakerrClient.CreateAppEventFromErrorWithSkip(err, skip+1)
@@ -159,7 +154,7 @@ func (trakerrClient *TrakerrClient) Recover() {
 func (trakerrClient *TrakerrClient) RecoverWithAppEvent(appEvent *AppEvent) {
 	if err := recover(); err != nil {
 		trakerrClient.AddStackTraceToAppEvent(appEvent, err, 1)
-		trakerrClient.SendErrorWithAppEvent(appEvent)
+		trakerrClient.SendEvent(appEvent)
 	}
 }
 
