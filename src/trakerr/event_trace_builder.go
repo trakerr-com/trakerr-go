@@ -2,32 +2,27 @@ package trakerr
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"runtime"
-	"strings"
 )
 
-//EventTraceBuilder ...
 type EventTraceBuilder struct {
 }
 
-//GetEventTraces ...
-func (tb *EventTraceBuilder) GetEventTraces(err interface{}, depth int) []InnerStackTrace {
+func (tb *EventTraceBuilder) GetEventTraces(err interface{}, depth int, skip int) []InnerStackTrace {
 	if err == nil {
 		return nil
 	}
 
 	var traces = []InnerStackTrace{}
 
-	return tb.AddStackTrace(traces, err, depth)
+	return tb.AddStackTrace(traces, err, depth, skip+1)
 }
 
-//AddStackTrace ...
-func (tb *EventTraceBuilder) AddStackTrace(traces []InnerStackTrace, err interface{}, depth int) []InnerStackTrace {
+func (tb *EventTraceBuilder) AddStackTrace(traces []InnerStackTrace, err interface{}, depth int, skip int) []InnerStackTrace {
 	var innerTrace = InnerStackTrace{}
 
-	innerTrace.TraceLines = tb.GetTraceLines(err, depth)
+	innerTrace.TraceLines = tb.GetTraceLines(err, depth, skip+1)
 	innerTrace.Message = fmt.Sprint(err)
 	innerTrace.Type_ = fmt.Sprintf("%T", err)
 
@@ -35,36 +30,22 @@ func (tb *EventTraceBuilder) AddStackTrace(traces []InnerStackTrace, err interfa
 	return traces
 }
 
-//GetTraceLines ...
-func (tb *EventTraceBuilder) GetTraceLines(err interface{}, depth int) []StackTraceLine {
+func (tb *EventTraceBuilder) GetTraceLines(err interface{}, depth int, skip int) []StackTraceLine {
 	var traceLines = []StackTraceLine{}
-	var goPath = os.Getenv("GOPATH")
-	var goFilePath = tb.FileErrorHandler(filepath.Abs(goPath))
 
 	for i := 0; i < depth; i++ {
-		pc, file, line, ok := runtime.Caller(i)
-		fmt.Println(file)
+		pc, file, line, ok := runtime.Caller(skip + 1 + i)
 		if !ok {
 			break
 		}
-		var localFilePath = tb.FileErrorHandler(filepath.Abs(file))
 
 		var function = runtime.FuncForPC(pc)
 		stLine := StackTraceLine{}
-		stLine.File = strings.TrimPrefix(localFilePath, goFilePath)
+		stLine.File, _ = filepath.Abs(file)
 		stLine.Line = int32(line)
 		stLine.Function = function.Name()
 		traceLines = append(traceLines, stLine)
 	}
 
 	return traceLines
-}
-
-//FileErrorHandler ...
-func (tb *EventTraceBuilder) FileErrorHandler(str string, er error) string {
-	if er != nil {
-		panic(er)
-	}
-
-	return str
 }

@@ -106,15 +106,21 @@ func (trakerrClient *TrakerrClient) SendEvent(appEvent *AppEvent) (*APIResponse,
 }
 
 //SendError ...
-func (trakerrClient *TrakerrClient) SendError(err interface{}) (*APIResponse, error) {
-	appEvent := trakerrClient.CreateAppEventFromError(err)
+func (trakerrClient *TrakerrClient) SendError(err interface{}, skip int) (*APIResponse, error) {
+	appEvent := trakerrClient.CreateAppEventFromErrorWithSkip(err, skip+1)
 
 	return trakerrClient.eventsAPI.EventsPost(*appEvent)
 }
 
 //CreateAppEventFromError ...
 func (trakerrClient *TrakerrClient) CreateAppEventFromError(err interface{}) *AppEvent {
-	stacktrace := trakerrClient.eventTraceBuilder.GetEventTraces(err, 4)
+	return trakerrClient.CreateAppEventFromErrorWithSkip(err, 1)
+
+}
+
+//CreateAppEventFromErrorWithSkip ...
+func (trakerrClient *TrakerrClient) CreateAppEventFromErrorWithSkip(err interface{}, skip int) *AppEvent {
+	stacktrace := trakerrClient.eventTraceBuilder.GetEventTraces(err, 50, skip+1)
 	event := AppEvent{}
 	event.EventType = fmt.Sprintf("%T", err)
 	event.EventMessage = fmt.Sprint(err)
@@ -125,12 +131,24 @@ func (trakerrClient *TrakerrClient) CreateAppEventFromError(err interface{}) *Ap
 	return result
 }
 
-//Recover reovers from a panic and sends the error to Trakerr.
+//AddStackTraceToAppEvent ...
+func (trakerrClient *TrakerrClient) AddStackTraceToAppEvent(appEvent *AppEvent, err interface{}, skip int) *AppEvent {
+	stacktrace := trakerrClient.eventTraceBuilder.GetEventTraces(err, 50, skip+1)
+	event := *appEvent
+	event.EventType = fmt.Sprintf("%T", err)
+	event.EventMessage = fmt.Sprint(err)
+	event.Classification = "Error"
+
+	result := trakerrClient.FillDefaults(&event)
+	event.EventStacktrace = stacktrace
+	return result
+}
+
+//Recover recovers from a panic and sends the error to Trakerr.
 //Use in a Defer statement.
-//Add ability to take custom data?
 func (trakerrClient *TrakerrClient) Recover() {
 	if err := recover(); err != nil {
-		trakerrClient.SendError(err)
+		trakerrClient.SendError(err, 1)
 	}
 }
 
@@ -139,7 +157,7 @@ func (trakerrClient *TrakerrClient) Recover() {
 //Use in a Defer statement.
 func (trakerrClient *TrakerrClient) Notify() {
 	if err := recover(); err != nil {
-		trakerrClient.SendError(err)
+		trakerrClient.SendError(err, 1)
 		panic(err)
 	}
 }
