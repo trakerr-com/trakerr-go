@@ -134,7 +134,7 @@ func (trakerrClient *TrakerrClient) CreateAppEventFromErrorWithSkip(err interfac
 //AddStackTraceToAppEvent ...
 func (trakerrClient *TrakerrClient) AddStackTraceToAppEvent(appEvent *AppEvent, err interface{}, skip int) {
 	stacktrace := trakerrClient.eventTraceBuilder.GetEventTraces(err, 50, skip+1)
-	event := *appEvent
+	var event = appEvent
 	event.EventType = fmt.Sprintf("%T", err)
 	event.EventMessage = fmt.Sprint(err)
 	event.Classification = "Error"
