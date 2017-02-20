@@ -78,7 +78,14 @@ func NewTrakerrClient(
 			} else {
 				var output = out.String()
 				contextAppOS = getTextFromLine(output, "OS Name:", "\n")
-				contextAppOSVersion = getTextFromLine(output, "OS Version:", "\n")
+				version := getTextFromLine(output, "OS Version:", "\n")
+				versionstringsplit := strings.Split(version, " ")
+
+				if len(versionstringsplit) >= 1 {
+					contextAppOSVersion = versionstringsplit[0]
+				} else {
+					contextAppOSVersion = version
+				}
 			}
 
 		case "darwin": // ...
