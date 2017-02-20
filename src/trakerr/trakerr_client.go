@@ -189,25 +189,30 @@ func (trakerrClient *TrakerrClient) SendEvent(appEvent *AppEvent) (*APIResponse,
 }
 
 //SendError ...
-func (trakerrClient *TrakerrClient) SendError(err interface{}, skip int) (*APIResponse, error) {
-	appEvent := trakerrClient.CreateAppEventFromErrorWithSkip(err, skip+1)
+func (trakerrClient *TrakerrClient) SendError(err interface{}, classification string) {
+	trakerrClient.SendErrorWithSkip(err, classification, 1)
+}
+
+//SendErrorWithSkip ...
+func (trakerrClient *TrakerrClient) SendErrorWithSkip(err interface{}, classification string, skip int) (*APIResponse, error) {
+	appEvent := trakerrClient.CreateAppEventFromErrorWithSkip(err, classification, skip+1)
 
 	return trakerrClient.eventsAPI.EventsPost(*appEvent)
 }
 
 //CreateAppEventFromError ...
-func (trakerrClient *TrakerrClient) CreateAppEventFromError(err interface{}) *AppEvent {
-	return trakerrClient.CreateAppEventFromErrorWithSkip(err, 1)
+func (trakerrClient *TrakerrClient) CreateAppEventFromError(err interface{}, classification string) *AppEvent {
+	return trakerrClient.CreateAppEventFromErrorWithSkip(err, classification, 1)
 
 }
 
 //CreateAppEventFromErrorWithSkip ...
-func (trakerrClient *TrakerrClient) CreateAppEventFromErrorWithSkip(err interface{}, skip int) *AppEvent {
+func (trakerrClient *TrakerrClient) CreateAppEventFromErrorWithSkip(err interface{}, classification string, skip int) *AppEvent {
 	stacktrace := trakerrClient.eventTraceBuilder.GetEventTraces(err, 50, skip+1)
 	event := AppEvent{}
 	event.EventType = fmt.Sprintf("%T", err)
 	event.EventMessage = fmt.Sprint(err)
-	event.Classification = "Error"
+	event.Classification = classification
 
 	result := trakerrClient.FillDefaults(&event)
 	event.EventStacktrace = stacktrace
@@ -218,18 +223,21 @@ func (trakerrClient *TrakerrClient) CreateAppEventFromErrorWithSkip(err interfac
 func (trakerrClient *TrakerrClient) AddStackTraceToAppEvent(appEvent *AppEvent, err interface{}, skip int) {
 	stacktrace := trakerrClient.eventTraceBuilder.GetEventTraces(err, 50, skip+1)
 	var event = appEvent
-	event.EventType = fmt.Sprintf("%T", err)
-	event.EventMessage = fmt.Sprint(err)
-	event.Classification = "Error"
+	if event.EventType == "" {
+		event.EventType = fmt.Sprintf("%T", err)
+	}
+	if event.EventMessage == "" {
+		event.EventMessage = fmt.Sprint(err)
+	}
 
 	event.EventStacktrace = stacktrace
 }
 
 //Recover recovers from a panic and sends the error to Trakerr.
 //Use in a Defer statement.
-func (trakerrClient *TrakerrClient) Recover() {
+func (trakerrClient *TrakerrClient) Recover(classification string) {
 	if err := recover(); err != nil {
-		trakerrClient.SendError(err, 1)
+		trakerrClient.SendErrorWithSkip(err, classification, 1)
 	}
 }
 
@@ -244,9 +252,9 @@ func (trakerrClient *TrakerrClient) RecoverWithAppEvent(appEvent *AppEvent) {
 //Notify recovers from an error and then repanics after sending the error to Trakerr,
 //so that the panic can be picked up by the program error handler.
 //Use in a Defer statement.
-func (trakerrClient *TrakerrClient) Notify() {
+func (trakerrClient *TrakerrClient) Notify(classification string) {
 	if err := recover(); err != nil {
-		trakerrClient.SendError(err, 1)
+		trakerrClient.SendErrorWithSkip(err, classification, 1)
 		panic(err)
 	}
 }
