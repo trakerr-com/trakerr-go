@@ -3,9 +3,12 @@
 package trakerr
 
 import (
+	"bytes"
 	"fmt"
 	"os"
+	"os/exec"
 	"runtime"
+	"strings"
 	"time"
 )
 
@@ -61,7 +64,66 @@ func NewTrakerrClient(
 
 	if contextAppOS == "" {
 		contextAppOS = runtime.GOOS
-		contextAppOSVersion = "N/A (arch:" + runtime.GOARCH + ")"
+		switch contextAppOS {
+		case "windows": // Keep an eye out for OS's using carrage returns
+			//cmd1 := exec.Command("systeminfo")
+			cmd := exec.Command("cmd", "/C", "systeminfo") //exec.Command("findstr", "/C:\"OS Name\"")
+			var out bytes.Buffer
+			cmd.Stdout = &out
+
+			err1 := cmd.Run()
+			if err1 != nil {
+				contextAppOS = runtime.GOOS
+				contextAppOSVersion = "N/A (arch:" + runtime.GOARCH + ")"
+			} else {
+				var output = out.String()
+				contextAppOS = getTextFromLine(output, "OS Name:", "\n")
+				contextAppOSVersion = getTextFromLine(output, "OS Version:", "\n")
+			}
+
+		case "darwin": // ...
+			cmd := exec.Command("bash", "-c", "system_profiler SPSoftwareDataType") //exec.Command("findstr", "/C:\"OS Name\"")
+			var out bytes.Buffer
+			cmd.Stdout = &out
+
+			err1 := cmd.Run()
+			if err1 != nil {
+				contextAppOS = runtime.GOOS
+				contextAppOSVersion = "N/A (arch:" + runtime.GOARCH + ")"
+			} else {
+				var output = out.String()
+
+				contextAppOS = getTextFromLine(output, "System Version:", "(")
+				contextAppOSVersion = getTextFromLine(output, "Kernel Version:", "\n")
+			}
+
+		default:
+			cmd := exec.Command("bash", "-c", "uname -s") //Uname -r and -s
+			var out bytes.Buffer
+			cmd.Stdout = &out
+
+			err1 := cmd.Run()
+			var output string
+			if err1 != nil {
+				contextAppOS = runtime.GOOS
+			} else {
+				output = out.String()
+
+				contextAppOS = strings.Trim(output, " \r\n")
+			}
+
+			cmd = exec.Command("bash", "-c", "uname -r") //Uname -r and -s
+			err1 = cmd.Run()
+			if err1 != nil {
+				contextAppOSVersion = "N/A (arch:" + runtime.GOARCH + ")"
+			} else {
+				output = out.String()
+
+				contextAppOSVersion = strings.Trim(output, " \r\n")
+			}
+
+		}
+
 	}
 	var eventsAPI EventsAPI
 
@@ -84,6 +146,20 @@ func NewTrakerrClient(
 		contextDataCenterRegion: contextDataCenterRegion,
 		eventsAPI:               eventsAPI,
 		eventTraceBuilder:       EventTraceBuilder{}}
+}
+
+func getTextFromLine(text string, prefix string, suffix string) string {
+	var startindex = strings.Index(text, prefix)
+	if startindex == -1 {
+		return ""
+	}
+	var newstringfromprefix = text[startindex+len(prefix):]
+	var endindex = strings.Index(newstringfromprefix, suffix)
+	if endindex == -1 {
+		return ""
+	}
+
+	return strings.Trim(newstringfromprefix[0:endindex], " \n\r")
 }
 
 //NewAppEvent ...
