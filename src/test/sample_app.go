@@ -44,7 +44,7 @@ func main() {
 
 	//Option 4: Global error handling
 
-	appEvent := client.NewErrorEvent("Error")
+	appEvent := client.NewErrorEvent()
 	// set any custom data on appEvent
 	appEvent.CustomProperties.StringData.CustomData1 = "foo"
 	appEvent.CustomProperties.StringData.CustomData2 = "bar"
@@ -68,7 +68,7 @@ type TestError struct {
 //BufferOverflowError ...
 func (testError *TestError) BufferOverflowError(buf []int, i int, session TestSession) (x int) {
 	//defer client.Recover()
-	defer session.client.RecoverWithAppEvent(session.appEvent)
+	defer session.client.RecoverWithAppEvent("Error", session.appEvent)
 
 	x = buf[i]
 	return x
