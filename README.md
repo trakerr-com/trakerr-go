@@ -137,7 +137,7 @@ func NewTrakerrClientWithDefaults(
 	contextAppVersion string,
 	contextEnvName string) *TrakerrClient
 ```
-The ContextEnvName name is intended to be used as a string identifier as to what your codebase is for; release, development, prototype. You can use it for whatever you denote as useful. The ContextApp Version is useful for a codebase version identifier, or perhaps some other useful metric for the error.
+The contextEnvName name is intended to be used as a string identifier as to what your codebase is for; release, development, prototype. You can use it for whatever you denote as useful. The contextAppVersion is useful for a codebase version identifier, or perhaps some other useful metric for the error.
 
 Looking at the second call we're exposed to a lot of what the first call defaults.
 
