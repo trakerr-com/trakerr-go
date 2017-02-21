@@ -35,7 +35,7 @@ func (tb *EventTraceBuilder) AddStackTrace(traces []InnerStackTrace, err interfa
 func (tb *EventTraceBuilder) GetTraceLines(err interface{}, depth int, skip int) []StackTraceLine {
 	var traceLines = []StackTraceLine{}
 	var goPath = tb.FileErrorHandler(filepath.Abs(os.Getenv("GOPATH")))
-	var goRuntime = tb.FileErrorHandler(filepath.Abs(os.Getenv("GOROOT")))
+	var goRuntime = tb.FileErrorHandler(filepath.Abs(runtime.GOROOT()))
 	for i := 0; i < depth; i++ {
 		pc, file, line, ok := runtime.Caller(skip + 1 + i)
 		if !ok {
@@ -45,10 +45,17 @@ func (tb *EventTraceBuilder) GetTraceLines(err interface{}, depth int, skip int)
 
 		var function = runtime.FuncForPC(pc)
 		stLine := StackTraceLine{}
-		finalstring := strings.TrimPrefix(strings.ToLower(localFilePath), strings.ToLower(goPath)) //trim if goPath
-		finalstring = strings.TrimPrefix(finalstring, strings.ToLower(goRuntime))                  //trim if goRuntime
-		finalstring = strings.TrimLeft(finalstring, "\\/ ")
-		stLine.File = finalstring
+
+		var finalstring string
+		if strings.Contains(strings.ToLower(localFilePath), strings.ToLower(goPath)) { //If it's goPath stacktrace
+			finalstring = localFilePath[len(goPath):]
+		} else if strings.Contains(strings.ToLower(localFilePath), strings.ToLower(goRuntime)) {
+			finalstring = localFilePath[len(goRuntime):]
+		} else {
+			finalstring = localFilePath
+		}
+
+		stLine.File = strings.TrimLeft(finalstring, "\\/ ")
 		stLine.Line = int32(line)
 		stLine.Function = function.Name()
 		traceLines = append(traceLines, stLine)
