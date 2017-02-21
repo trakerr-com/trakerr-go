@@ -195,7 +195,7 @@ func (trakerrClient *TrakerrClient) SendEvent(appEvent *AppEvent) (*APIResponse,
 
 //SendError ...
 func (trakerrClient *TrakerrClient) SendError(classification string, err interface{}) {
-	trakerrClient.SendErrorWithSkip(err, classification, 1)
+	trakerrClient.SendErrorWithSkip(err, classification, 4)
 }
 
 //SendErrorWithSkip ...
@@ -207,7 +207,7 @@ func (trakerrClient *TrakerrClient) SendErrorWithSkip(err interface{}, classific
 
 //CreateAppEventFromError ...
 func (trakerrClient *TrakerrClient) CreateAppEventFromError(classification string, err interface{}) *AppEvent {
-	return trakerrClient.CreateAppEventFromErrorWithSkip(err, classification, 1)
+	return trakerrClient.CreateAppEventFromErrorWithSkip(err, classification, 4)
 
 }
 
@@ -243,7 +243,7 @@ func (trakerrClient *TrakerrClient) AddStackTraceToAppEvent(appEvent *AppEvent, 
 //Use in a Defer statement.
 func (trakerrClient *TrakerrClient) Recover(classification string) {
 	if err := recover(); err != nil {
-		response, apierr := trakerrClient.SendErrorWithSkip(err, classification, 1)
+		response, apierr := trakerrClient.SendErrorWithSkip(err, classification, 4)
 		if response.StatusCode > 399 {
 			fmt.Println(response.Status)
 		}
@@ -256,7 +256,7 @@ func (trakerrClient *TrakerrClient) Recover(classification string) {
 //RecoverWithAppEvent ...
 func (trakerrClient *TrakerrClient) RecoverWithAppEvent(classification string, appEvent *AppEvent) {
 	if err := recover(); err != nil {
-		trakerrClient.AddStackTraceToAppEvent(appEvent, classification, err, 1)
+		trakerrClient.AddStackTraceToAppEvent(appEvent, classification, err, 4)
 		response, apierr := trakerrClient.SendEvent(appEvent)
 		if response.StatusCode > 399 {
 			fmt.Println(response.Status)
@@ -273,7 +273,7 @@ func (trakerrClient *TrakerrClient) RecoverWithAppEvent(classification string, a
 //Use in a Defer statement.
 func (trakerrClient *TrakerrClient) Notify(classification string) {
 	if err := recover(); err != nil {
-		response, apierr := trakerrClient.SendErrorWithSkip(err, classification, 1)
+		response, apierr := trakerrClient.SendErrorWithSkip(err, classification, 4)
 		if response.StatusCode > 399 {
 			fmt.Println(response.Status)
 		}
@@ -289,7 +289,7 @@ func (trakerrClient *TrakerrClient) Notify(classification string) {
 //Use in a Defer statement.
 func (trakerrClient *TrakerrClient) NotifyWithAppEvent(classification string, appEvent *AppEvent) {
 	if err := recover(); err != nil {
-		trakerrClient.AddStackTraceToAppEvent(appEvent, classification, err, 1)
+		trakerrClient.AddStackTraceToAppEvent(appEvent, classification, err, 4)
 		response, apierr := trakerrClient.SendEvent(appEvent)
 		if response.StatusCode > 399 {
 			fmt.Println(response.Status)

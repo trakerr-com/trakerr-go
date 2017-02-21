@@ -2,8 +2,10 @@ package trakerr
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 )
 
 type EventTraceBuilder struct {
@@ -32,20 +34,31 @@ func (tb *EventTraceBuilder) AddStackTrace(traces []InnerStackTrace, err interfa
 
 func (tb *EventTraceBuilder) GetTraceLines(err interface{}, depth int, skip int) []StackTraceLine {
 	var traceLines = []StackTraceLine{}
-
+	var goPath = os.Getenv("GOPATH")
+	var goFilePath = tb.FileErrorHandler(filepath.Abs(goPath))
 	for i := 0; i < depth; i++ {
 		pc, file, line, ok := runtime.Caller(skip + 1 + i)
 		if !ok {
 			break
 		}
+		var localFilePath = tb.FileErrorHandler(filepath.Abs(file))
 
 		var function = runtime.FuncForPC(pc)
 		stLine := StackTraceLine{}
-		stLine.File, _ = filepath.Abs(file)
+		stLine.File = strings.TrimPrefix(strings.ToLower(localFilePath), strings.ToLower(goFilePath))
 		stLine.Line = int32(line)
 		stLine.Function = function.Name()
 		traceLines = append(traceLines, stLine)
 	}
 
 	return traceLines
+}
+
+//FileErrorHandler ...
+func (tb *EventTraceBuilder) FileErrorHandler(str string, er error) string {
+	if er != nil {
+		panic(er)
+	}
+
+	return str
 }
