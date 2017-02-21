@@ -194,7 +194,7 @@ func (trakerrClient *TrakerrClient) SendEvent(appEvent *AppEvent) (*APIResponse,
 }
 
 //SendError ...
-func (trakerrClient *TrakerrClient) SendError(err interface{}, classification string) {
+func (trakerrClient *TrakerrClient) SendError(classification string, err interface{}) {
 	trakerrClient.SendErrorWithSkip(err, classification, 1)
 }
 
@@ -206,7 +206,7 @@ func (trakerrClient *TrakerrClient) SendErrorWithSkip(err interface{}, classific
 }
 
 //CreateAppEventFromError ...
-func (trakerrClient *TrakerrClient) CreateAppEventFromError(err interface{}, classification string) *AppEvent {
+func (trakerrClient *TrakerrClient) CreateAppEventFromError(classification string, err interface{}) *AppEvent {
 	return trakerrClient.CreateAppEventFromErrorWithSkip(err, classification, 1)
 
 }
