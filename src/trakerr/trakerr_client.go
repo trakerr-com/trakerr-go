@@ -183,6 +183,11 @@ func (trakerrClient *TrakerrClient) NewAppEvent(classification string, eventType
 	return trakerrClient.FillDefaults(&AppEvent{Classification: classification, EventType: eventType, EventMessage: eventMessage})
 }
 
+//NewErrorEvent ...
+func (trakerrClient *TrakerrClient) NewErrorEvent(classification string) *AppEvent {
+	return trakerrClient.NewAppEvent(classification, "", "")
+}
+
 //SendEvent ...
 func (trakerrClient *TrakerrClient) SendEvent(appEvent *AppEvent) (*APIResponse, error) {
 	return trakerrClient.eventsAPI.EventsPost(*trakerrClient.FillDefaults(appEvent))

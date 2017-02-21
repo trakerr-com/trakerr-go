@@ -44,7 +44,7 @@ func main() {
 
 	//Option 4: Global error handling
 
-	appEvent := client.NewAppEvent("Error", "", "")
+	appEvent := client.NewErrorEvent("Error")
 	// set any custom data on appEvent
 	appEvent.CustomProperties.StringData.CustomData1 = "foo"
 	appEvent.CustomProperties.StringData.CustomData2 = "bar"
