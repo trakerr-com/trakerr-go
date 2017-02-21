@@ -45,8 +45,9 @@ func (tb *EventTraceBuilder) GetTraceLines(err interface{}, depth int, skip int)
 
 		var function = runtime.FuncForPC(pc)
 		stLine := StackTraceLine{}
-		finalstring := strings.TrimPrefix(strings.ToLower(localFilePath), strings.ToLower(goPath))
-		finalstring = strings.TrimPrefix(finalstring, strings.ToLower(goRuntime))
+		finalstring := strings.TrimPrefix(strings.ToLower(localFilePath), strings.ToLower(goPath)) //trim if goPath
+		finalstring = strings.TrimPrefix(finalstring, strings.ToLower(goRuntime))                  //trim if goRuntime
+		finalstring = strings.TrimLeft(finalstring, "\\/ ")
 		stLine.File = finalstring
 		stLine.Line = int32(line)
 		stLine.Function = function.Name()
