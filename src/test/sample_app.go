@@ -22,7 +22,7 @@ func main() {
 
 	//Option-1: Global error handling
 
-	appEvent := client.NewErrorEvent("Error")
+	appEvent := client.NewEmptyEvent()
 	// set any custom data on appEvent
 	appEvent.CustomProperties.StringData.CustomData1 = "foo"
 	appEvent.CustomProperties.StringData.CustomData2 = "bar"
