@@ -56,7 +56,7 @@ func main() {
 Once you've created a client, you can set up an exception prepared for an area which may cause panics:
 
 ```golang
-appEvent := client.NewErrorEvent()
+appEvent := client.NewEmptyEvent()
 // set any custom data on appEvent
 appEvent.CustomProperties.StringData.CustomData1 = "foo"
 appEvent.CustomProperties.StringData.CustomData2 = "bar"
@@ -98,7 +98,7 @@ will catch the error, send it to Trakerr and then repanic in the same method.
 	err := errors.New("Something bad happened here")
 
 	// Option-1: send error
-	client.SendError(err)
+	client.SendError(err, "Error")
 ```
 
 ### Option-3: Send an error to trakerr programmatically with custom properties
@@ -106,7 +106,7 @@ will catch the error, send it to Trakerr and then repanic in the same method.
 	err := errors.New("Something bad happened here")
 
 	// Option-2: send error with custom properties
-	appEventWithErr := client.CreateAppEventFromError(err)
+	appEventWithErr := client.CreateAppEventFromError(err, "Error")
 
 	// set any custom data on appEvent
 	appEventWithErr.CustomProperties.StringData.CustomData1 = "foo"
