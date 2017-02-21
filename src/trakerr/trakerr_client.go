@@ -184,8 +184,8 @@ func (trakerrClient *TrakerrClient) NewAppEvent(classification string, eventType
 }
 
 //NewErrorEvent ...
-func (trakerrClient *TrakerrClient) NewErrorEvent(classification string) *AppEvent {
-	return trakerrClient.NewAppEvent(classification, "", "")
+func (trakerrClient *TrakerrClient) NewEmptyEvent() *AppEvent {
+	return trakerrClient.NewAppEvent(" ", "", "")
 }
 
 //SendEvent ...
@@ -225,7 +225,7 @@ func (trakerrClient *TrakerrClient) CreateAppEventFromErrorWithSkip(err interfac
 }
 
 //AddStackTraceToAppEvent ...
-func (trakerrClient *TrakerrClient) AddStackTraceToAppEvent(appEvent *AppEvent, err interface{}, skip int) {
+func (trakerrClient *TrakerrClient) AddStackTraceToAppEvent(appEvent *AppEvent, classification string, err interface{}, skip int) {
 	stacktrace := trakerrClient.eventTraceBuilder.GetEventTraces(err, 50, skip+1)
 	var event = appEvent
 	if event.EventType == "" || event.EventMessage == "unknown" {
@@ -234,6 +234,7 @@ func (trakerrClient *TrakerrClient) AddStackTraceToAppEvent(appEvent *AppEvent, 
 	if event.EventMessage == "" || event.EventMessage == "unknown" {
 		event.EventMessage = fmt.Sprint(err)
 	}
+	event.Classification = classification
 
 	event.EventStacktrace = stacktrace
 }
@@ -253,9 +254,9 @@ func (trakerrClient *TrakerrClient) Recover(classification string) {
 }
 
 //RecoverWithAppEvent ...
-func (trakerrClient *TrakerrClient) RecoverWithAppEvent(appEvent *AppEvent) {
+func (trakerrClient *TrakerrClient) RecoverWithAppEvent(classification string, appEvent *AppEvent) {
 	if err := recover(); err != nil {
-		trakerrClient.AddStackTraceToAppEvent(appEvent, err, 1)
+		trakerrClient.AddStackTraceToAppEvent(appEvent, classification, err, 1)
 		response, apierr := trakerrClient.SendEvent(appEvent)
 		if response.StatusCode > 399 {
 			fmt.Println(response.Status)
@@ -286,9 +287,9 @@ func (trakerrClient *TrakerrClient) Notify(classification string) {
 //NotifyWithAppEvent recovers from an error and then repanics after sending the error to Trakerr,
 //so that the panic can be picked up by the program error handler.
 //Use in a Defer statement.
-func (trakerrClient *TrakerrClient) NotifyWithAppEvent(appEvent *AppEvent) {
+func (trakerrClient *TrakerrClient) NotifyWithAppEvent(classification string, appEvent *AppEvent) {
 	if err := recover(); err != nil {
-		trakerrClient.AddStackTraceToAppEvent(appEvent, err, 1)
+		trakerrClient.AddStackTraceToAppEvent(appEvent, classification, err, 1)
 		response, apierr := trakerrClient.SendEvent(appEvent)
 		if response.StatusCode > 399 {
 			fmt.Println(response.Status)
