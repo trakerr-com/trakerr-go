@@ -19,12 +19,28 @@ func main() {
 			"1.0",
 			"development")
 	}
-	/*err := errors.New("Something bad happened here")
+	
+	//Option-1: Global error handling
 
-	// Option-1: send error
+	appEvent := client.NewErrorEvent("Error")
+	// set any custom data on appEvent
+	appEvent.CustomProperties.StringData.CustomData1 = "foo"
+	appEvent.CustomProperties.StringData.CustomData2 = "bar"
+	appEvent.EventUser = "john@trakerr.io"
+	appEvent.EventSession = "12"
+
+	ts := TestSession{client, appEvent}
+	buf := []int{1, 2, 3}
+	te := TestError{}
+	te.BufferOverflowError(buf, 4, ts)
+	
+
+
+	// Option-2: send error
+	/*err := errors.New("Something bad happened here")
 	client.SendError(err)
 
-	// Option-2: send error with custom properties
+	// Option-3: send error with custom properties
 	appEventWithErr := client.CreateAppEventFromError(err)
 
 	// set any custom data on appEvent
@@ -33,7 +49,7 @@ func main() {
 
 	client.SendEvent(appEventWithErr)
 
-	// Option-3: send event manually
+	// Option-4: send event manually
 	appEvent := client.NewAppEvent("Info", "SomeType", "SomeMessage")
 
 	// set any custom data on appEvent
@@ -41,20 +57,6 @@ func main() {
 	appEvent.CustomProperties.StringData.CustomData2 = "bar"
 
 	client.SendEvent(appEvent)*/
-
-	//Option 4: Global error handling
-
-	appEvent := client.NewErrorEvent("Error")
-	// set any custom data on appEvent
-	appEvent.CustomProperties.StringData.CustomData1 = "foo"
-	appEvent.CustomProperties.StringData.CustomData2 = "bar"
-	appEvent.EventUser = "john@user.com"
-	appEvent.EventSession = "12"
-
-	ts := TestSession{client, appEvent}
-	buf := []int{1, 2, 3}
-	te := TestError{}
-	te.BufferOverflowError(buf, 4, ts)
 }
 
 type TestSession struct {
