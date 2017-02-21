@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"os"
 
 	"github.com/trakerr-io/trakerr-go/src/trakerr"
@@ -36,7 +35,7 @@ func main() {
 	te.BufferOverflowError(buf, 4, ts)
 
 	// Option-2: send error
-	err := errors.New("Something bad happened here")
+	/*err := errors.New("Something bad happened here")
 	client.SendError("Error", err)
 
 	// Option-3: send error with custom properties
@@ -55,7 +54,7 @@ func main() {
 	appEventCustom.CustomProperties.StringData.CustomData1 = "foo"
 	appEventCustom.CustomProperties.StringData.CustomData2 = "bar"
 
-	client.SendEvent(appEventCustom)
+	client.SendEvent(appEventCustom)*/
 }
 
 type TestSession struct {
