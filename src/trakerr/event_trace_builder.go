@@ -34,8 +34,8 @@ func (tb *EventTraceBuilder) AddStackTrace(traces []InnerStackTrace, err interfa
 
 func (tb *EventTraceBuilder) GetTraceLines(err interface{}, depth int, skip int) []StackTraceLine {
 	var traceLines = []StackTraceLine{}
-	var goPath = os.Getenv("GOPATH")
-	var goFilePath = tb.FileErrorHandler(filepath.Abs(goPath))
+	var goPath = tb.FileErrorHandler(filepath.Abs(os.Getenv("GOPATH")))
+	var goRuntime = tb.FileErrorHandler(filepath.Abs(os.Getenv("GOROOT")))
 	for i := 0; i < depth; i++ {
 		pc, file, line, ok := runtime.Caller(skip + 1 + i)
 		if !ok {
@@ -45,7 +45,9 @@ func (tb *EventTraceBuilder) GetTraceLines(err interface{}, depth int, skip int)
 
 		var function = runtime.FuncForPC(pc)
 		stLine := StackTraceLine{}
-		stLine.File = strings.TrimPrefix(strings.ToLower(localFilePath), strings.ToLower(goFilePath))
+		finalstring := strings.TrimPrefix(strings.ToLower(localFilePath), strings.ToLower(goPath))
+		finalstring = strings.TrimPrefix(finalstring, strings.ToLower(goRuntime))
+		stLine.File = finalstring
 		stLine.Line = int32(line)
 		stLine.Function = function.Name()
 		traceLines = append(traceLines, stLine)
