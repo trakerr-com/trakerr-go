@@ -20,8 +20,17 @@ And then in your imports add this
 ```
 ## Getting Started
 
-There are a few options (illustrated below with comment Option-#) to send events to Trakerr. The easiest of
-which is to send only errors to Trakerr (Option-1).
+There are a few options (illustrated below with comment Option-#) to send events to Trakerr. If you would like to generate some sample events quickly and see the API in action, you can:
+
+```bash
+go get github.com/trakerr-io/trakerr-go/src/test
+```
+and then cd into the the folder. Once there, you can simple do:
+
+```bash
+go run sample_app.go <API key here>
+```
+To generate an error and get started on the site.
 
 ### Creating a new client
 
@@ -43,7 +52,48 @@ func main() {
 }
 ```
 
-### Option-1: Send an error to trakerr programmatically
+### Option-1: Catch errors automatically with a defer
+Once you've created a client, you can set up an exception prepared for an area which may cause panics:
+
+```golang
+appEvent := client.NewAppEvent("Error", "", "")
+// set any custom data on appEvent
+appEvent.CustomProperties.StringData.CustomData1 = "foo"
+appEvent.CustomProperties.StringData.CustomData2 = "bar"
+appEvent.EventUser = "John Doe"
+appEvent.EventSession = "12
+```
+
+We suggest storing these in a struct for global error handling:
+```golang
+type TestSession struct {
+	client   *trakerr.TrakerrClient
+	appEvent *trakerr.AppEvent
+}
+```
+
+And initializing it simply with the above methods.
+
+```golang
+ts := TestSession{client, appEvent}
+```
+
+We can then simply access the struct when we want to keep a precautionary defer. And then calling one of the methods that recover from the panic in Traker Client.
+
+```golang
+defer session.client.RecoverWithAppEvent(session.appEvent)
+```
+
+Recover catches the panic and recover, while sending the error to Trakerr. If you wish to handle the error your own way,
+
+```golang
+defer session.client.NotifyWithAppEvent(session.appEvent)
+```
+
+will catch the error, send it to Trakerr and then repanic in the same method.
+
+
+### Option-2: Send an error to trakerr programmatically
 ```golang
 	err := errors.New("Something bad happened here")
 
@@ -51,7 +101,7 @@ func main() {
 	client.SendError(err)
 ```
 
-### Option-2: Send an error to trakerr programmatically with custom properties
+### Option-3: Send an error to trakerr programmatically with custom properties
 ```golang
 	err := errors.New("Something bad happened here")
 
@@ -65,7 +115,7 @@ func main() {
 	client.SendEvent(appEventWithErr)
 ```
 
-### Option-3: Send an event including non-exceptions to Trakerr
+### Option-4: Send an event including non-exceptions to Trakerr
 ```golang
 	err := errors.New("Something bad happened here")
 
