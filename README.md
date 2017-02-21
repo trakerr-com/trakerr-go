@@ -56,12 +56,12 @@ func main() {
 Once you've created a client, you can set up an exception prepared for an area which may cause panics:
 
 ```golang
-appEvent := client.NewAppEvent("Error", "", "")
+appEvent := client.NewErrorEvent("Error")
 // set any custom data on appEvent
 appEvent.CustomProperties.StringData.CustomData1 = "foo"
 appEvent.CustomProperties.StringData.CustomData2 = "bar"
-appEvent.EventUser = "John Doe"
-appEvent.EventSession = "12
+appEvent.EventUser = "john@user.com"
+appEvent.EventSession = "12"
 ```
 
 We suggest storing these in a struct for global error handling:
