@@ -178,7 +178,7 @@ func (trakerrClient *TrakerrClient) NewAppEvent(classification string, eventType
 		eventType = "unknown"
 	}
 	if eventMessage == "" {
-		eventMessage = "unknown "
+		eventMessage = "unknown"
 	}
 	return trakerrClient.FillDefaults(&AppEvent{Classification: classification, EventType: eventType, EventMessage: eventMessage})
 }
@@ -223,10 +223,10 @@ func (trakerrClient *TrakerrClient) CreateAppEventFromErrorWithSkip(err interfac
 func (trakerrClient *TrakerrClient) AddStackTraceToAppEvent(appEvent *AppEvent, err interface{}, skip int) {
 	stacktrace := trakerrClient.eventTraceBuilder.GetEventTraces(err, 50, skip+1)
 	var event = appEvent
-	if event.EventType == "" {
+	if event.EventType == "" || event.EventMessage == "unknown" {
 		event.EventType = fmt.Sprintf("%T", err)
 	}
-	if event.EventMessage == "" {
+	if event.EventMessage == "" || event.EventMessage == "unknown" {
 		event.EventMessage = fmt.Sprint(err)
 	}
 
@@ -237,7 +237,13 @@ func (trakerrClient *TrakerrClient) AddStackTraceToAppEvent(appEvent *AppEvent, 
 //Use in a Defer statement.
 func (trakerrClient *TrakerrClient) Recover(classification string) {
 	if err := recover(); err != nil {
-		trakerrClient.SendErrorWithSkip(err, classification, 1)
+		response, apierr := trakerrClient.SendErrorWithSkip(err, classification, 1)
+		if response.StatusCode > 399 {
+			fmt.Println(response.Status)
+		}
+		if apierr != nil {
+			panic(apierr)
+		}
 	}
 }
 
@@ -245,7 +251,14 @@ func (trakerrClient *TrakerrClient) Recover(classification string) {
 func (trakerrClient *TrakerrClient) RecoverWithAppEvent(appEvent *AppEvent) {
 	if err := recover(); err != nil {
 		trakerrClient.AddStackTraceToAppEvent(appEvent, err, 1)
-		trakerrClient.SendEvent(appEvent)
+		response, apierr := trakerrClient.SendEvent(appEvent)
+		if response.StatusCode > 399 {
+			fmt.Println(response.Status)
+		}
+		if apierr != nil {
+			panic(apierr)
+		}
+
 	}
 }
 
@@ -254,7 +267,30 @@ func (trakerrClient *TrakerrClient) RecoverWithAppEvent(appEvent *AppEvent) {
 //Use in a Defer statement.
 func (trakerrClient *TrakerrClient) Notify(classification string) {
 	if err := recover(); err != nil {
-		trakerrClient.SendErrorWithSkip(err, classification, 1)
+		response, apierr := trakerrClient.SendErrorWithSkip(err, classification, 1)
+		if response.StatusCode > 399 {
+			fmt.Println(response.Status)
+		}
+		if apierr != nil {
+			panic(apierr)
+		}
+		panic(err)
+	}
+}
+
+//NotifyWithAppEvent recovers from an error and then repanics after sending the error to Trakerr,
+//so that the panic can be picked up by the program error handler.
+//Use in a Defer statement.
+func (trakerrClient *TrakerrClient) NotifyWithAppEvent(appEvent *AppEvent) {
+	if err := recover(); err != nil {
+		trakerrClient.AddStackTraceToAppEvent(appEvent, err, 1)
+		response, apierr := trakerrClient.SendEvent(appEvent)
+		if response.StatusCode > 399 {
+			fmt.Println(response.Status)
+		}
+		if apierr != nil {
+			panic(apierr)
+		}
 		panic(err)
 	}
 }

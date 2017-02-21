@@ -1,12 +1,24 @@
 package main
 
-import "github.com/trakerr-io/trakerr-go/src/trakerr"
+import (
+	"os"
+
+	"github.com/trakerr-io/trakerr-go/src/trakerr"
+)
 
 func main() {
-	client := trakerr.NewTrakerrClientWithDefaults(
-		"API Key Here",
-		"1.0",
-		"development")
+	var client *trakerr.TrakerrClient
+	if len(os.Args) >= 1 {
+		client = trakerr.NewTrakerrClientWithDefaults(
+			os.Args[1],
+			"1.0",
+			"development")
+	} else {
+		client = trakerr.NewTrakerrClientWithDefaults(
+			"API Key here",
+			"1.0",
+			"development")
+	}
 	/*err := errors.New("Something bad happened here")
 
 	// Option-1: send error
