@@ -48,7 +48,7 @@ func main() {
 	// set any custom data on appEvent
 	appEvent.CustomProperties.StringData.CustomData1 = "foo"
 	appEvent.CustomProperties.StringData.CustomData2 = "bar"
-	appEvent.EventUser = "John Doe"
+	appEvent.EventUser = "john@user.com"
 	appEvent.EventSession = "12"
 
 	ts := TestSession{client, appEvent}
