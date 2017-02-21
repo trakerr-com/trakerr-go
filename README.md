@@ -98,7 +98,7 @@ will catch the error, send it to Trakerr and then repanic in the same method.
 	err := errors.New("Something bad happened here")
 
 	// Option-1: send error
-	client.SendError(err, "Error")
+	client.SendError("Error", err)
 ```
 
 ### Option-3: Send an error to trakerr programmatically with custom properties
@@ -106,7 +106,7 @@ will catch the error, send it to Trakerr and then repanic in the same method.
 	err := errors.New("Something bad happened here")
 
 	// Option-2: send error with custom properties
-	appEventWithErr := client.CreateAppEventFromError(err, "Error")
+	appEventWithErr := client.CreateAppEventFromError("Error", err)
 
 	// set any custom data on appEvent
 	appEventWithErr.CustomProperties.StringData.CustomData1 = "foo"
