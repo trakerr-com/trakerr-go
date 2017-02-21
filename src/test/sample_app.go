@@ -36,10 +36,10 @@ func main() {
 
 	// Option-2: send error
 	/*err := errors.New("Something bad happened here")
-	client.SendError(err)
+	client.SendError(err, "Error")
 
 	// Option-3: send error with custom properties
-	appEventWithErr := client.CreateAppEventFromError(err)
+	appEventWithErr := client.CreateAppEventFromError(err, "Error")
 
 	// set any custom data on appEvent
 	appEventWithErr.CustomProperties.StringData.CustomData1 = "foo"
@@ -48,11 +48,11 @@ func main() {
 	client.SendEvent(appEventWithErr)
 
 	// Option-4: send event manually
-	appEvent := client.NewAppEvent("Info", "SomeType", "SomeMessage")
+	appEventCustom := client.NewAppEvent("Info", "SomeType", "SomeMessage")
 
 	// set any custom data on appEvent
-	appEvent.CustomProperties.StringData.CustomData1 = "foo"
-	appEvent.CustomProperties.StringData.CustomData2 = "bar"
+	appEventCustom.CustomProperties.StringData.CustomData1 = "foo"
+	appEventCustom.CustomProperties.StringData.CustomData2 = "bar"
 
 	client.SendEvent(appEvent)*/
 }
