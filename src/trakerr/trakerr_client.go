@@ -12,45 +12,66 @@ import (
 	"time"
 )
 
-//TrakerrClient ...
-type TrakerrClient struct {
-	apiKey                  string
-	url                     string
-	contextAppVersion       string
-	contextEnvName          string
-	contextEnvVersion       string
-	contextEnvHostname      string
-	contextAppOS            string
-	contextAppOSVersion     string
-	contextDataCenter       string
-	contextDataCenterRegion string
-	eventsAPI               EventsAPI
-	eventTraceBuilder       EventTraceBuilder
+//makeTimestamp is a package level function that formats the time now into a Trakerr readable format.
+func makeTimestamp() int64 {
+	return time.Now().UnixNano() / int64(time.Millisecond)
 }
 
-//NewTrakerrClientWithDefaults creates a new TrakerrClient and return it with the data.
-// Most parameters are optional i.e. empty (pass "" to use defaults) with the exception of apiKey which is required.
-func NewTrakerrClientWithDefaults(
-	apiKey string,
-	contextAppVersion string,
-	contextEnvName string) *TrakerrClient {
-	return NewTrakerrClient(apiKey, "", contextAppVersion, contextEnvName, "", "", "", "", "", "")
+//getTextFromLine is a package level function that takes a text in a string and
+//returns the string in between the end of the prefix string and the start of the suffix string.
+func getTextFromLine(text string, prefix string, suffix string) string {
+	var startindex = strings.Index(text, prefix)
+	if startindex == -1 {
+		return ""
+	}
+	var newstringfromprefix = text[startindex+len(prefix):]
+	var endindex = strings.Index(newstringfromprefix, suffix)
+	if endindex == -1 {
+		return ""
+	}
+
+	return strings.Trim(newstringfromprefix[0:endindex], " \n\r")
 }
+
+//TrakerrClient is the class that sends events to Trakerr.
+//In a normal use case, Trakerr populates the field below with default values, but can be set after constuction to a custom value.
+//The discription for the fields are below, and the struct associated methods below that.
+type TrakerrClient struct {
+	apiKey                     string
+	url                        string
+	contextAppVersion          string
+	contextEnvName             string
+	contextEnvVersion          string
+	contextEnvHostname         string
+	contextAppOS               string
+	contextAppOSVersion        string
+	contextAppOSBrowser        string
+	contextAppOSBrowserVersion string
+	contextDataCenter          string
+	contextDataCenterRegion    string
+	eventsAPI                  EventsAPI
+	eventTraceBuilder          EventTraceBuilder
+}
+
+//apiKey:String: Should be your API key string.\
+//url is the url eventsAPI is constructed with in the constructor. If you wish to use a custom API create a new eventsAPI, this is a dead field and needs to be reworked.
+//contextAppVersion:String: Should be the version of your application.
+//contextEnvName:String: Should be the deployment stage of your program.
+// ContextEnvVersion is the version of the CLI the program is run on.
+// ContextEnvHostname is hostname of the pc running the code.
+// ContextAppOS is the OS the program is running on.
+// ContextAppOSVersion is the version of the OS the code is running on.
+// contextAppBrowser is optional MVC and ASP.net applications the browser name the application is running on.
+// contextAppBrowserVersion is optional for MVC and ASP.net applications the browser version the application is running on.
+// ContextDatacenter is the optional datacenter the code may be running on.
+// ContextDatacenterRegion is the optional datacenter region the code may be running on.
 
 // NewTrakerrClient creates a new TrakerrClient and return it with the data.
 // Most parameters are optional i.e. empty (pass "" to use defaults) with the exception of apiKey which is required.
-// url is the location of the serverr service, if "" is passed it defaults to https://trakerr.io/api/v1
 func NewTrakerrClient(
 	apiKey string,
-	url string,
 	contextAppVersion string,
-	contextEnvName string,
-	contextEnvVersion string,
-	contextEnvHostname string,
-	contextAppOS string,
-	contextAppOSVersion string,
-	contextDataCenter string,
-	contextDataCenterRegion string) *TrakerrClient {
+	contextEnvName string) *TrakerrClient {
 
 	if contextEnvName == "" {
 		contextEnvName = "development"
@@ -58,81 +79,81 @@ func NewTrakerrClient(
 	if contextAppVersion == "" {
 		contextAppVersion = "1.0"
 	}
-	if contextEnvHostname == "" {
-		contextEnvHostname, _ = os.Hostname()
-	}
 
-	if contextAppOS == "" {
-		contextAppOS = runtime.GOOS
-		switch contextAppOS {
-		case "windows": // Keep an eye out for OS's using carrage returns
-			//cmd1 := exec.Command("systeminfo")
-			cmd := exec.Command("cmd", "/C", "systeminfo") //exec.Command("findstr", "/C:\"OS Name\"")
-			var out bytes.Buffer
-			cmd.Stdout = &out
+	contextEnvVersion := runtime.Version()
+	contextEnvHostname, _ := os.Hostname()
 
-			err1 := cmd.Run()
-			if err1 != nil {
-				contextAppOS = runtime.GOOS
-				contextAppOSVersion = "N/A (arch:" + runtime.GOARCH + ")"
+	contextAppOS := runtime.GOOS
+	var contextAppOSVersion string
+	switch contextAppOS {
+	case "windows": // Keep an eye out for OS's using carrage returns
+		//cmd1 := exec.Command("systeminfo")
+		cmd := exec.Command("cmd", "/C", "systeminfo") //exec.Command("findstr", "/C:\"OS Name\"")
+		var out bytes.Buffer
+		cmd.Stdout = &out
+
+		err1 := cmd.Run()
+		if err1 != nil {
+			contextAppOS = runtime.GOOS
+			contextAppOSVersion = "N/A (arch:" + runtime.GOARCH + ")"
+		} else {
+			var output = out.String()
+			contextAppOS = getTextFromLine(output, "OS Name:", "\n")
+			version := getTextFromLine(output, "OS Version:", "\n")
+			versionstringsplit := strings.Split(version, " ")
+
+			if len(versionstringsplit) >= 1 {
+				contextAppOSVersion = versionstringsplit[0]
 			} else {
-				var output = out.String()
-				contextAppOS = getTextFromLine(output, "OS Name:", "\n")
-				version := getTextFromLine(output, "OS Version:", "\n")
-				versionstringsplit := strings.Split(version, " ")
-
-				if len(versionstringsplit) >= 1 {
-					contextAppOSVersion = versionstringsplit[0]
-				} else {
-					contextAppOSVersion = version
-				}
+				contextAppOSVersion = version
 			}
+		}
 
-		case "darwin": // ...
-			cmd := exec.Command("bash", "-c", "system_profiler SPSoftwareDataType") //exec.Command("findstr", "/C:\"OS Name\"")
-			var out bytes.Buffer
-			cmd.Stdout = &out
+	case "darwin": // ...
+		cmd := exec.Command("bash", "-c", "system_profiler SPSoftwareDataType") //exec.Command("findstr", "/C:\"OS Name\"")
+		var out bytes.Buffer
+		cmd.Stdout = &out
 
-			err1 := cmd.Run()
-			if err1 != nil {
-				contextAppOS = runtime.GOOS
-				contextAppOSVersion = "N/A (arch:" + runtime.GOARCH + ")"
-			} else {
-				var output = out.String()
+		err1 := cmd.Run()
+		if err1 != nil {
+			contextAppOS = runtime.GOOS
+			contextAppOSVersion = "N/A (arch:" + runtime.GOARCH + ")"
+		} else {
+			var output = out.String()
 
-				contextAppOS = getTextFromLine(output, "System Version:", "(")
-				contextAppOSVersion = getTextFromLine(output, "Kernel Version:", "\n")
-			}
+			contextAppOS = getTextFromLine(output, "System Version:", "(")
+			contextAppOSVersion = getTextFromLine(output, "Kernel Version:", "\n")
+		}
 
-		default:
-			cmd := exec.Command("bash", "-c", "uname -s") //Uname -r and -s
-			var out bytes.Buffer
-			cmd.Stdout = &out
+	default:
+		cmd := exec.Command("bash", "-c", "uname -s") //Uname -r and -s
+		var out bytes.Buffer
+		cmd.Stdout = &out
 
-			err1 := cmd.Run()
-			var output string
-			if err1 != nil {
-				contextAppOS = runtime.GOOS
-			} else {
-				output = out.String()
+		err1 := cmd.Run()
+		var output string
+		if err1 != nil {
+			contextAppOS = runtime.GOOS
+		} else {
+			output = out.String()
 
-				contextAppOS = strings.Trim(output, " \r\n")
-			}
+			contextAppOS = strings.Trim(output, " \r\n")
+		}
 
-			cmd = exec.Command("bash", "-c", "uname -r") //Uname -r and -s
-			err1 = cmd.Run()
-			if err1 != nil {
-				contextAppOSVersion = "N/A (arch:" + runtime.GOARCH + ")"
-			} else {
-				output = out.String()
+		cmd = exec.Command("bash", "-c", "uname -r") //Uname -r and -s
+		err1 = cmd.Run()
+		if err1 != nil {
+			contextAppOSVersion = "N/A (arch:" + runtime.GOARCH + ")"
+		} else {
+			output = out.String()
 
-				contextAppOSVersion = strings.Trim(output, " \r\n")
-			}
-
+			contextAppOSVersion = strings.Trim(output, " \r\n")
 		}
 
 	}
+
 	var eventsAPI EventsAPI
+	url := ""
 
 	if url != "" {
 		eventsAPI = *NewEventsAPIWithBasePath(url)
@@ -149,27 +170,13 @@ func NewTrakerrClient(
 		contextEnvHostname:      contextEnvHostname,
 		contextAppOS:            contextAppOS,
 		contextAppOSVersion:     contextAppOSVersion,
-		contextDataCenter:       contextDataCenter,
-		contextDataCenterRegion: contextDataCenterRegion,
+		contextDataCenter:       "",
+		contextDataCenterRegion: "",
 		eventsAPI:               eventsAPI,
 		eventTraceBuilder:       EventTraceBuilder{}}
 }
 
-func getTextFromLine(text string, prefix string, suffix string) string {
-	var startindex = strings.Index(text, prefix)
-	if startindex == -1 {
-		return ""
-	}
-	var newstringfromprefix = text[startindex+len(prefix):]
-	var endindex = strings.Index(newstringfromprefix, suffix)
-	if endindex == -1 {
-		return ""
-	}
-
-	return strings.Trim(newstringfromprefix[0:endindex], " \n\r")
-}
-
-//NewAppEvent ...
+//NewAppEvent returns an AppEvent pointer with the classification eventType and eventMessage filled.
 func (trakerrClient *TrakerrClient) NewAppEvent(classification string, eventType string, eventMessage string) *AppEvent {
 	if classification == "" {
 		classification = "Error"
@@ -183,35 +190,36 @@ func (trakerrClient *TrakerrClient) NewAppEvent(classification string, eventType
 	return trakerrClient.FillDefaults(&AppEvent{Classification: classification, EventType: eventType, EventMessage: eventMessage})
 }
 
-//NewErrorEvent ...
+//NewEmptyEvent returns a Appevent pointer which is empty. If the AppEvent is passed into a defer later, classification, eventType, and eventMessage
+//will be filled by the error parsing.
 func (trakerrClient *TrakerrClient) NewEmptyEvent() *AppEvent {
 	return trakerrClient.NewAppEvent(" ", "", "")
 }
 
-//SendEvent ...
+//SendEvent sends the event to trakerr.
 func (trakerrClient *TrakerrClient) SendEvent(appEvent *AppEvent) (*APIResponse, error) {
 	return trakerrClient.eventsAPI.EventsPost(*trakerrClient.FillDefaults(appEvent))
 }
 
-//SendError ...
+//SendError outward facing method that creates an event and takes a classification and an error.
 func (trakerrClient *TrakerrClient) SendError(classification string, err interface{}) {
 	trakerrClient.SendErrorWithSkip(err, classification, 4)
 }
 
-//SendErrorWithSkip ...
+//SendErrorWithSkip internal method that handles creating an app event and gets the stacktrace before sending.
 func (trakerrClient *TrakerrClient) SendErrorWithSkip(err interface{}, classification string, skip int) (*APIResponse, error) {
 	appEvent := trakerrClient.CreateAppEventFromErrorWithSkip(err, classification, skip+1)
 
 	return trakerrClient.eventsAPI.EventsPost(*appEvent)
 }
 
-//CreateAppEventFromError ...
+//CreateAppEventFromError internal method that provides some default values for CreateAppEventFromErrorWithSkip.
 func (trakerrClient *TrakerrClient) CreateAppEventFromError(classification string, err interface{}) *AppEvent {
 	return trakerrClient.CreateAppEventFromErrorWithSkip(err, classification, 4)
 
 }
 
-//CreateAppEventFromErrorWithSkip ...
+//CreateAppEventFromErrorWithSkip internal method which calls eventTraceBuilder to parse the stacktrace and creates an app event with it.
 func (trakerrClient *TrakerrClient) CreateAppEventFromErrorWithSkip(err interface{}, classification string, skip int) *AppEvent {
 	stacktrace := trakerrClient.eventTraceBuilder.GetEventTraces(err, 50, skip+1)
 	event := AppEvent{}
@@ -224,7 +232,8 @@ func (trakerrClient *TrakerrClient) CreateAppEventFromErrorWithSkip(err interfac
 	return result
 }
 
-//AddStackTraceToAppEvent ...
+//AddStackTraceToAppEvent internal method to add a stack trace to an already exisiting AppEvent.
+//Useful for creating your app event first to populate custom data.
 func (trakerrClient *TrakerrClient) AddStackTraceToAppEvent(appEvent *AppEvent, classification string, err interface{}, skip int) {
 	stacktrace := trakerrClient.eventTraceBuilder.GetEventTraces(err, 50, skip+1)
 	var event = appEvent
@@ -239,8 +248,8 @@ func (trakerrClient *TrakerrClient) AddStackTraceToAppEvent(appEvent *AppEvent, 
 	event.EventStacktrace = stacktrace
 }
 
-//Recover recovers from a panic and sends the error to Trakerr.
-//Use in a Defer statement.
+//Recover recovers from a panic and sends the error to Trakerr. Creates the AppEvent
+//Use in a Defer statement. The classification is the the string classifiction of the error (ie: "Error", "Info", ect).
 func (trakerrClient *TrakerrClient) Recover(classification string) {
 	if err := recover(); err != nil {
 		response, apierr := trakerrClient.SendErrorWithSkip(err, classification, 4)
@@ -253,7 +262,8 @@ func (trakerrClient *TrakerrClient) Recover(classification string) {
 	}
 }
 
-//RecoverWithAppEvent ...
+//RecoverWithAppEvent recovers from a panic and sends the error to Trakerr from a defer statement.
+//This function takes in an AppEvent so could popultate the AppEvent with custom data and then attach the err from the defer.
 func (trakerrClient *TrakerrClient) RecoverWithAppEvent(classification string, appEvent *AppEvent) {
 	if err := recover(); err != nil {
 		trakerrClient.AddStackTraceToAppEvent(appEvent, classification, err, 4)
@@ -285,8 +295,8 @@ func (trakerrClient *TrakerrClient) Notify(classification string) {
 }
 
 //NotifyWithAppEvent recovers from an error and then repanics after sending the error to Trakerr,
-//so that the panic can be picked up by the program error handler.
-//Use in a Defer statement.
+//so that the panic can be picked up by the program error handler. Use in a Defer statement.
+//This function takes in an AppEvent so could popultate the AppEvent with custom data and then attach the err from the defer.
 func (trakerrClient *TrakerrClient) NotifyWithAppEvent(classification string, appEvent *AppEvent) {
 	if err := recover(); err != nil {
 		trakerrClient.AddStackTraceToAppEvent(appEvent, classification, err, 4)
@@ -301,7 +311,7 @@ func (trakerrClient *TrakerrClient) NotifyWithAppEvent(classification string, ap
 	}
 }
 
-//FillDefaults ...
+//FillDefaults Populates the appevent with the TrakerrClient defaults.
 func (trakerrClient *TrakerrClient) FillDefaults(appEvent *AppEvent) *AppEvent {
 	if appEvent.ApiKey == "" {
 		appEvent.ApiKey = trakerrClient.apiKey
@@ -337,8 +347,4 @@ func (trakerrClient *TrakerrClient) FillDefaults(appEvent *AppEvent) *AppEvent {
 		appEvent.EventTime = makeTimestamp()
 	}
 	return appEvent
-}
-
-func makeTimestamp() int64 {
-	return time.Now().UnixNano() / int64(time.Millisecond)
 }

@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+//EventTraceBuilder is a static-eqsue struct which has methods assosiated with it to parse stacktraces.
 type EventTraceBuilder struct {
 }
 
@@ -21,6 +22,7 @@ func (tb *EventTraceBuilder) GetEventTraces(err interface{}, depth int, skip int
 	return tb.AddStackTrace(traces, err, depth, skip+1)
 }
 
+//AddStackTrace adds a filled inner stacktrace to a list and returns it.
 func (tb *EventTraceBuilder) AddStackTrace(traces []InnerStackTrace, err interface{}, depth int, skip int) []InnerStackTrace {
 	var innerTrace = InnerStackTrace{}
 
@@ -32,6 +34,7 @@ func (tb *EventTraceBuilder) AddStackTrace(traces []InnerStackTrace, err interfa
 	return traces
 }
 
+//GetTraceLines parses each line of the stacktrace and returns an array of lines to populate InnerStackTrace
 func (tb *EventTraceBuilder) GetTraceLines(err interface{}, depth int, skip int) []StackTraceLine {
 	var traceLines = []StackTraceLine{}
 	var goPath = tb.FileErrorHandler(filepath.Abs(os.Getenv("GOPATH")))
@@ -49,7 +52,7 @@ func (tb *EventTraceBuilder) GetTraceLines(err interface{}, depth int, skip int)
 		var finalstring string
 		if strings.Contains(strings.ToLower(localFilePath), strings.ToLower(goPath)) { //If it's goPath stacktrace
 			finalstring = localFilePath[len(goPath):]
-		} else if strings.Contains(strings.ToLower(localFilePath), strings.ToLower(goRuntime)) {
+		} else if strings.Contains(strings.ToLower(localFilePath), strings.ToLower(goRuntime)) { //Otherwise its called from the runtime.
 			finalstring = localFilePath[len(goRuntime):]
 		} else {
 			finalstring = localFilePath
@@ -64,7 +67,7 @@ func (tb *EventTraceBuilder) GetTraceLines(err interface{}, depth int, skip int)
 	return traceLines
 }
 
-//FileErrorHandler ...
+//FileErrorHandler is a small erro handler for calls to find the paths of the files for path output parsing.
 func (tb *EventTraceBuilder) FileErrorHandler(str string, er error) string {
 	if er != nil {
 		panic(er)
