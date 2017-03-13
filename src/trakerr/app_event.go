@@ -27,10 +27,13 @@ type AppEvent struct {
 	// API key generated for the application
 	ApiKey string `json:"apiKey,omitempty"`
 
-	// one of 'debug','info','warning','error' or a custom string
+	// (optional) Logging level, one of 'debug','info','warning','error', 'fatal', defaults to 'error'
+	LogLevel string `json:"logLevel,omitempty"`
+
+	// (optional) one of 'error' or a custom string for non-errors, defaults to 'error'
 	Classification string `json:"classification,omitempty"`
 
-	// type or event or error (eg. NullPointerException)
+	// type of the event or error (eg. NullPointerException)
 	EventType string `json:"eventType,omitempty"`
 
 	// message containing details of the event or error
@@ -39,7 +42,7 @@ type AppEvent struct {
 	// (optional) event time in ms since epoch
 	EventTime int64 `json:"eventTime,omitempty"`
 
-	EventStacktrace []InnerStackTrace `json:"eventStacktrace,omitempty"`
+	EventStacktrace Stacktrace `json:"eventStacktrace,omitempty"`
 
 	// (optional) event user identifying a user
 	EventUser string `json:"eventUser,omitempty"`
@@ -50,8 +53,14 @@ type AppEvent struct {
 	// (optional) application version information
 	ContextAppVersion string `json:"contextAppVersion,omitempty"`
 
-	// (optional) one of 'development','staging','production' or a custom string
+	// (optional) deployment stage, one of 'development','staging','production' or a custom string
+	DeploymentStage string `json:"deploymentStage,omitempty"`
+
+	// (optional) environment name (like 'cpython' or 'ironpython' etc.)
 	ContextEnvName string `json:"contextEnvName,omitempty"`
+
+	// (optional) language (like 'python' or 'c#' etc.)
+	ContextEnvLanguage string `json:"contextEnvLanguage,omitempty"`
 
 	// (optional) version of environment
 	ContextEnvVersion string `json:"contextEnvVersion,omitempty"`
