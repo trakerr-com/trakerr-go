@@ -4,8 +4,8 @@
     <artifactId>Gotrakerr</artifactId>
     <packaging>pom</packaging>
     <version>1.0.0</version>
-    <name>GoTrakerr</name>
-    <build>
+    <name>Gotrakerr</name>
+ <build>
         <plugins>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -27,7 +27,7 @@
                 <version>1.2.1</version>
                 <executions>
                     <execution>
-                        <id>go-get-generated</id>
+                        <id>go-get-testify</id>
                         <phase>pre-integration-test</phase>
                         <goals>
                             <goal>exec</goal>
@@ -36,7 +36,35 @@
                             <executable>go</executable>
                             <arguments>
                                 <argument>get</argument>
-                                <argument>trakerr_client</argument>
+                                <argument>github.com/stretchr/testify/assert</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>go-get-sling</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>go</executable>
+                            <arguments>
+                                <argument>get</argument>
+                                <argument>github.com/dghubble/sling</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>go-test</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>go</executable>
+                            <arguments>
+                                <argument>test</argument>
+                                <argument>-v</argument>
                             </arguments>
                         </configuration>
                     </execution>
