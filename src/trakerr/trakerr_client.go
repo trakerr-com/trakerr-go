@@ -38,7 +38,6 @@ func getTextFromLine(text string, prefix string, suffix string) string {
 //The discription for the fields are below, and the struct associated methods below that.
 type TrakerrClient struct {
 	apiKey                     string
-	url                        string
 	contextAppVersion          string
 	contextEnvName             string
 	contextEnvVersion          string
@@ -49,22 +48,22 @@ type TrakerrClient struct {
 	contextAppOSBrowserVersion string
 	contextDataCenter          string
 	contextDataCenterRegion    string
-	eventsAPI                  EventsAPI
+	eventsAPI                  EventsApi
 	eventTraceBuilder          EventTraceBuilder
 }
 
-//apiKey:String: Should be your API key string.\
+//apiKey:String: Should be your API key string.
 //url is the url eventsAPI is constructed with in the constructor. If you wish to use a custom API create a new eventsAPI, this is a dead field and needs to be reworked.
 //contextAppVersion:String: Should be the version of your application.
 //contextEnvName:String: Should be the deployment stage of your program.
-// ContextEnvVersion is the version of the CLI the program is run on.
-// ContextEnvHostname is hostname of the pc running the code.
-// ContextAppOS is the OS the program is running on.
-// ContextAppOSVersion is the version of the OS the code is running on.
-// contextAppBrowser is optional MVC and ASP.net applications the browser name the application is running on.
-// contextAppBrowserVersion is optional for MVC and ASP.net applications the browser version the application is running on.
-// ContextDatacenter is the optional datacenter the code may be running on.
-// ContextDatacenterRegion is the optional datacenter region the code may be running on.
+//contextEnvVersion is the version of the CLI the program is run on.
+//contextEnvHostname is hostname of the pc running the code.
+//contextAppOS is the OS the program is running on.
+//contextAppOSVersion is the version of the OS the code is running on.
+//contextAppBrowser is optional MVC and ASP.net applications the browser name the application is running on.
+//contextAppBrowserVersion is optional for MVC and ASP.net applications the browser version the application is running on.
+//contextDatacenter is the optional datacenter the code may be running on.
+// contextDatacenterRegion is the optional datacenter region the code may be running on.
 
 // NewTrakerrClient creates a new TrakerrClient and return it with the data.
 // Most parameters are optional i.e. empty (pass "" to use defaults) with the exception of apiKey which is required.
@@ -152,18 +151,11 @@ func NewTrakerrClient(
 
 	}
 
-	var eventsAPI EventsAPI
-	url := ""
-
-	if url != "" {
-		eventsAPI = *NewEventsAPIWithBasePath(url)
-	} else {
-		eventsAPI = *NewEventsAPI()
-	}
+	var eventsAPI EventsApi
+	eventsAPI = *NewEventsApi()
 
 	return &TrakerrClient{
 		apiKey:                  apiKey,
-		url:                     url,
 		contextAppVersion:       contextAppVersion,
 		contextEnvName:          contextEnvName,
 		contextEnvVersion:       contextEnvVersion,
