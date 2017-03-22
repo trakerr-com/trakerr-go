@@ -54,17 +54,19 @@ type TrakerrClient struct {
 	eventTraceBuilder          EventTraceBuilder
 }
 
-//apiKey:String: Should be your API key string.
-//contextAppVersion:String: Should be the version of your application.
-//contextEnvName:String: Should be the deployment stage of your program.
-//contextEnvVersion is the version of the CLI the program is run on.
-//contextEnvHostname is hostname of the pc running the code.
-//contextAppOS is the OS the program is running on.
-//contextAppOSVersion is the version of the OS the code is running on.
+//apiKey is your API key string.
+//contextAppVersion is the version of the application.
+//contextDeploymentStage is the deployment stage of the application.
+//contextEnvLanguage is the constant string representing the language the application is in.
+//contextEnvName is the OS and Arch name the compiler is targeting for the application.
+//contextEnvVersion is the version of golang the application is run on.
+//contextEnvHostname is hostname of the pc running the application.
+//contextAppOS is the OS the application is running on.
+//contextAppOSVersion is the version of the OS the application is running on.
 //contextAppBrowser is an optional string browser name the application is running on.
 //contextAppBrowserVersion is an optional string browser version the application is running on.
 //contextDatacenter is the optional datacenter the code may be running on.
-// contextDatacenterRegion is the optional datacenter region the code may be running on.
+//contextDatacenterRegion is the optional datacenter region the code may be running on.
 
 // NewTrakerrClient creates a new TrakerrClient and return it with the data.
 // Most parameters are optional i.e. empty (pass "" to use defaults) with the exception of apiKey which is required.
