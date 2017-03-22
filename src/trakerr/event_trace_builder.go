@@ -12,6 +12,11 @@ import (
 type EventTraceBuilder struct {
 }
 
+//GetEventTraces takes an error, along with a depth and a skip and returns an array of parsed inner stacktraces.
+//The depth is how many lines the stacktrace is long, to parse; while the skip bumps up the stacktrace.
+//Without a skip, since the error is being passed to EventTraceBuilder the stacktrace of the current
+//thread will start here, and go through main to where the error occured. In this case; skip removes
+//the trakerr API internals from the trace, since they're not relevent, and depth is the final top of the trace.
 func (tb *EventTraceBuilder) GetEventTraces(err interface{}, depth int, skip int) []InnerStackTrace {
 	if err == nil {
 		return nil
@@ -67,7 +72,7 @@ func (tb *EventTraceBuilder) GetTraceLines(err interface{}, depth int, skip int)
 	return traceLines
 }
 
-//FileErrorHandler is a small erro handler for calls to find the paths of the files for path output parsing.
+//FileErrorHandler is a small error handler for calls to find the paths of the files for path output parsing.
 func (tb *EventTraceBuilder) FileErrorHandler(str string, er error) string {
 	if er != nil {
 		panic(er)
