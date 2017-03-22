@@ -149,11 +149,10 @@ Name | Type | Description | Notes
 **contextEnvHostname** | **string** | Hostname or ID of environment. | Default value: os.hostname()
 **contextAppOS** | **string** | OS the application is running on. | Default value: OS name (ie. Windows, MacOS) (Currently being reworked).
 **contextAppOSVersion** | **string** | OS Version the application is running on. | Default value: System architecture string (Currently being reworked).
-contextAppOSBrowser
-contextAppOSBrowserVersion
+**contextAppOSBrowser** | **string** | An optional string browser name the application is running on. | Defaults to empty (`""`)
+**contextAppOSBrowserVersion** | **string** | An optional string browser version the application is running on. | Defaults to empty (`""`)
 **contextDataCenter** | **string** | Data center the application is running on or connected to. | Defaults to empty (`""`)
 **contextDataCenterRegion** | **string** | Data center region. | Defaults to empty (`""`)
-
 
 ## Documentation For Models
 
