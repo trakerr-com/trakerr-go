@@ -39,6 +39,8 @@ func getTextFromLine(text string, prefix string, suffix string) string {
 type TrakerrClient struct {
 	apiKey                     string
 	contextAppVersion          string
+	contextDeploymentStage     string
+	contextEnvLanguage         string
 	contextEnvName             string
 	contextEnvVersion          string
 	contextEnvHostname         string
@@ -53,15 +55,14 @@ type TrakerrClient struct {
 }
 
 //apiKey:String: Should be your API key string.
-//url is the url eventsAPI is constructed with in the constructor. If you wish to use a custom API create a new eventsAPI, this is a dead field and needs to be reworked.
 //contextAppVersion:String: Should be the version of your application.
 //contextEnvName:String: Should be the deployment stage of your program.
 //contextEnvVersion is the version of the CLI the program is run on.
 //contextEnvHostname is hostname of the pc running the code.
 //contextAppOS is the OS the program is running on.
 //contextAppOSVersion is the version of the OS the code is running on.
-//contextAppBrowser is optional MVC and ASP.net applications the browser name the application is running on.
-//contextAppBrowserVersion is optional for MVC and ASP.net applications the browser version the application is running on.
+//contextAppBrowser is an optional string browser name the application is running on.
+//contextAppBrowserVersion is an optional string browser version the application is running on.
 //contextDatacenter is the optional datacenter the code may be running on.
 // contextDatacenterRegion is the optional datacenter region the code may be running on.
 
@@ -70,15 +71,20 @@ type TrakerrClient struct {
 func NewTrakerrClient(
 	apiKey string,
 	contextAppVersion string,
-	contextEnvName string) *TrakerrClient {
+	contextDeploymentStage string) *TrakerrClient {
 
-	if contextEnvName == "" {
-		contextEnvName = "development"
+	if contextDeploymentStage == "" {
+		contextDeploymentStage = "development"
 	}
 	if contextAppVersion == "" {
 		contextAppVersion = "1.0"
 	}
 
+	contextEnvLanguage := "GoLang"
+	//Go is a compiled language; the interpreter doesn't matter.
+	//Instead it seems to compile profiles for OS (for the OS depended libs) and Arch.
+	//I've provided the OS and arch target of the running program.
+	contextEnvName := runtime.GOOS + "/" + runtime.GOARCH
 	contextEnvVersion := runtime.Version()
 	contextEnvHostname, _ := os.Hostname()
 
@@ -157,6 +163,8 @@ func NewTrakerrClient(
 	return &TrakerrClient{
 		apiKey:                  apiKey,
 		contextAppVersion:       contextAppVersion,
+		contextDeploymentStage:  contextDeploymentStage,
+		contextEnvLanguage:      contextEnvLanguage,
 		contextEnvName:          contextEnvName,
 		contextEnvVersion:       contextEnvVersion,
 		contextEnvHostname:      contextEnvHostname,
@@ -169,9 +177,21 @@ func NewTrakerrClient(
 }
 
 //NewAppEvent returns an AppEvent pointer with the classification eventType and eventMessage filled.
-func (trakerrClient *TrakerrClient) NewAppEvent(classification string, eventType string, eventMessage string) *AppEvent {
+func (trakerrClient *TrakerrClient) NewAppEvent(loglevel string, classification string, eventType string, eventMessage string) *AppEvent {
+	loglevel = strings.ToLower(loglevel)
+
+	visitedURL := map[string]bool{
+		"info":    true,
+		"debug":   true,
+		"warn":    true,
+		"warning": true,
+		"fatal":   true,
+	}
+	if !visitedURL[loglevel] {
+		loglevel = "error"
+	}
 	if classification == "" {
-		classification = "Error"
+		classification = "issue"
 	}
 	if eventType == "" {
 		eventType = "unknown"
@@ -185,7 +205,7 @@ func (trakerrClient *TrakerrClient) NewAppEvent(classification string, eventType
 //NewEmptyEvent returns a Appevent pointer which is empty. If the AppEvent is passed into a defer later, classification, eventType, and eventMessage
 //will be filled by the error parsing.
 func (trakerrClient *TrakerrClient) NewEmptyEvent() *AppEvent {
-	return trakerrClient.NewAppEvent(" ", "", "")
+	return trakerrClient.NewAppEvent("", "", "", "")
 }
 
 //SendEvent sends the event to trakerr.
@@ -194,39 +214,38 @@ func (trakerrClient *TrakerrClient) SendEvent(appEvent *AppEvent) (*APIResponse,
 }
 
 //SendError outward facing method that creates an event and takes a classification and an error.
-func (trakerrClient *TrakerrClient) SendError(classification string, err interface{}) {
-	trakerrClient.SendErrorWithSkip(err, classification, 4)
+func (trakerrClient *TrakerrClient) SendError(loglevel string, classification string, err interface{}) {
+	trakerrClient.SendErrorWithSkip(err, loglevel, classification, 4)
 }
 
 //SendErrorWithSkip internal method that handles creating an app event and gets the stacktrace before sending.
-func (trakerrClient *TrakerrClient) SendErrorWithSkip(err interface{}, classification string, skip int) (*APIResponse, error) {
-	appEvent := trakerrClient.CreateAppEventFromErrorWithSkip(err, classification, skip+1)
+func (trakerrClient *TrakerrClient) SendErrorWithSkip(err interface{}, loglevel string, classification string, skip int) (*APIResponse, error) {
+	appEvent := trakerrClient.CreateAppEventFromErrorWithSkip(err, loglevel, classification, skip+1)
 
 	return trakerrClient.eventsAPI.EventsPost(*appEvent)
 }
 
 //CreateAppEventFromError internal method that provides some default values for CreateAppEventFromErrorWithSkip.
-func (trakerrClient *TrakerrClient) CreateAppEventFromError(classification string, err interface{}) *AppEvent {
-	return trakerrClient.CreateAppEventFromErrorWithSkip(err, classification, 4)
+func (trakerrClient *TrakerrClient) CreateAppEventFromError(loglevel string, classification string, err interface{}) *AppEvent {
+	return trakerrClient.CreateAppEventFromErrorWithSkip(err, loglevel, classification, 4)
 
 }
 
 //CreateAppEventFromErrorWithSkip internal method which calls eventTraceBuilder to parse the stacktrace and creates an app event with it.
-func (trakerrClient *TrakerrClient) CreateAppEventFromErrorWithSkip(err interface{}, classification string, skip int) *AppEvent {
+//Pass "" to use the default value classification
+func (trakerrClient *TrakerrClient) CreateAppEventFromErrorWithSkip(err interface{}, loglevel string, classification string, skip int) *AppEvent {
 	stacktrace := trakerrClient.eventTraceBuilder.GetEventTraces(err, 50, skip+1)
-	event := AppEvent{}
-	event.EventType = fmt.Sprintf("%T", err)
-	event.EventMessage = fmt.Sprint(err)
-	event.Classification = classification
+	event := trakerrClient.NewAppEvent(loglevel, classification, fmt.Sprintf("%T", err), fmt.Sprint(err))
 
-	result := trakerrClient.FillDefaults(&event)
-	event.EventStacktrace = stacktrace
+	result := trakerrClient.FillDefaults(event)
+	result.EventStacktrace = stacktrace
 	return result
 }
 
 //AddStackTraceToAppEvent internal method to add a stack trace to an already exisiting AppEvent.
 //Useful for creating your app event first to populate custom data.
-func (trakerrClient *TrakerrClient) AddStackTraceToAppEvent(appEvent *AppEvent, classification string, err interface{}, skip int) {
+//appEvent's EventType and EventMessaage are filled with the details from the error.
+func (trakerrClient *TrakerrClient) AddStackTraceToAppEvent(appEvent *AppEvent, err interface{}, skip int) {
 	stacktrace := trakerrClient.eventTraceBuilder.GetEventTraces(err, 50, skip+1)
 	var event = appEvent
 	if event.EventType == "" || event.EventMessage == "unknown" {
@@ -235,16 +254,15 @@ func (trakerrClient *TrakerrClient) AddStackTraceToAppEvent(appEvent *AppEvent, 
 	if event.EventMessage == "" || event.EventMessage == "unknown" {
 		event.EventMessage = fmt.Sprint(err)
 	}
-	event.Classification = classification
 
 	event.EventStacktrace = stacktrace
 }
 
 //Recover recovers from a panic and sends the error to Trakerr. Creates the AppEvent
-//Use in a Defer statement. The classification is the the string classifiction of the error (ie: "Error", "Info", ect).
-func (trakerrClient *TrakerrClient) Recover(classification string) {
+//Use in a Defer statement. The loglevel is the the string classifiction of the error (ie: "Error", "Info", ect).
+func (trakerrClient *TrakerrClient) Recover(loglevel string, classification string) {
 	if err := recover(); err != nil {
-		response, apierr := trakerrClient.SendErrorWithSkip(err, classification, 4)
+		response, apierr := trakerrClient.SendErrorWithSkip(err, loglevel, classification, 4)
 		if response.StatusCode > 399 {
 			fmt.Println(response.Status)
 		}
@@ -256,9 +274,9 @@ func (trakerrClient *TrakerrClient) Recover(classification string) {
 
 //RecoverWithAppEvent recovers from a panic and sends the error to Trakerr from a defer statement.
 //This function takes in an AppEvent so could popultate the AppEvent with custom data and then attach the err from the defer.
-func (trakerrClient *TrakerrClient) RecoverWithAppEvent(classification string, appEvent *AppEvent) {
+func (trakerrClient *TrakerrClient) RecoverWithAppEvent(appEvent *AppEvent) {
 	if err := recover(); err != nil {
-		trakerrClient.AddStackTraceToAppEvent(appEvent, classification, err, 4)
+		trakerrClient.AddStackTraceToAppEvent(appEvent, err, 4)
 		response, apierr := trakerrClient.SendEvent(appEvent)
 		if response.StatusCode > 399 {
 			fmt.Println(response.Status)
@@ -273,9 +291,9 @@ func (trakerrClient *TrakerrClient) RecoverWithAppEvent(classification string, a
 //Notify recovers from an error and then repanics after sending the error to Trakerr,
 //so that the panic can be picked up by the program error handler.
 //Use in a Defer statement.
-func (trakerrClient *TrakerrClient) Notify(classification string) {
+func (trakerrClient *TrakerrClient) Notify(loglevel string, classification string) {
 	if err := recover(); err != nil {
-		response, apierr := trakerrClient.SendErrorWithSkip(err, classification, 4)
+		response, apierr := trakerrClient.SendErrorWithSkip(err, loglevel, classification, 4)
 		if response.StatusCode > 399 {
 			fmt.Println(response.Status)
 		}
@@ -289,9 +307,9 @@ func (trakerrClient *TrakerrClient) Notify(classification string) {
 //NotifyWithAppEvent recovers from an error and then repanics after sending the error to Trakerr,
 //so that the panic can be picked up by the program error handler. Use in a Defer statement.
 //This function takes in an AppEvent so could popultate the AppEvent with custom data and then attach the err from the defer.
-func (trakerrClient *TrakerrClient) NotifyWithAppEvent(classification string, appEvent *AppEvent) {
+func (trakerrClient *TrakerrClient) NotifyWithAppEvent(appEvent *AppEvent) {
 	if err := recover(); err != nil {
-		trakerrClient.AddStackTraceToAppEvent(appEvent, classification, err, 4)
+		trakerrClient.AddStackTraceToAppEvent(appEvent, err, 4)
 		response, apierr := trakerrClient.SendEvent(appEvent)
 		if response.StatusCode > 399 {
 			fmt.Println(response.Status)
@@ -308,11 +326,16 @@ func (trakerrClient *TrakerrClient) FillDefaults(appEvent *AppEvent) *AppEvent {
 	if appEvent.ApiKey == "" {
 		appEvent.ApiKey = trakerrClient.apiKey
 	}
-
 	if appEvent.ContextAppVersion == "" {
 		appEvent.ContextAppVersion = trakerrClient.contextAppVersion
 	}
+	if appEvent.DeploymentStage == "" {
+		appEvent.DeploymentStage = trakerrClient.contextDeploymentStage
+	}
 
+	if appEvent.ContextEnvLanguage == "" {
+		appEvent.ContextEnvLanguage = trakerrClient.contextEnvLanguage
+	}
 	if appEvent.ContextEnvName == "" {
 		appEvent.ContextEnvName = trakerrClient.contextEnvName
 	}
