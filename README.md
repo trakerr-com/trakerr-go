@@ -44,7 +44,7 @@ import (
 )
 
 func main() {
-	client := trakerr.NewTrakerrClientWithDefaults(
+	client := trakerr.NewTrakerrClient(
 		"<replace with your API key>",
 		"1.0",
 		"development")
@@ -56,7 +56,7 @@ func main() {
 Once you've created a client, you can set up an exception prepared for an area which may cause panics:
 
 ```golang
-appEvent := client.NewEmptyEvent()
+appEvent := client.NewAppEvent("Error", "", "", "")
 // set any custom data on appEvent
 appEvent.CustomProperties.StringData.CustomData1 = "foo"
 appEvent.CustomProperties.StringData.CustomData2 = "bar"
@@ -98,7 +98,7 @@ will catch the error, send it to Trakerr and then repanic in the same method.
 	err := errors.New("Something bad happened here")
 
 	// Option-1: send error
-	client.SendError("Error", err)
+	client.SendError("Error", "", err)
 ```
 
 ### Option-3: Send an error to trakerr programmatically with custom properties
@@ -106,7 +106,7 @@ will catch the error, send it to Trakerr and then repanic in the same method.
 	err := errors.New("Something bad happened here")
 
 	// Option-2: send error with custom properties
-	appEventWithErr := client.CreateAppEventFromError("Error", err)
+	appEventWithErr := client.CreateAppEventFromError("Error", "", err)
 
 	// set any custom data on appEvent
 	appEventWithErr.CustomProperties.StringData.CustomData1 = "foo"
@@ -117,10 +117,8 @@ will catch the error, send it to Trakerr and then repanic in the same method.
 
 ### Option-4: Send an event including non-exceptions to Trakerr
 ```golang
-	err := errors.New("Something bad happened here")
-
 	// Option-3: send event manually
-	appEvent := client.NewAppEvent("Info", "SomeType", "SomeMessage")
+	appEvent := client.NewAppEvent("Info", "custom classification", "SomeType", "SomeMessage")
 
 	// set any custom data on appEvent
 	appEvent.CustomProperties.StringData.CustomData1 = "foo"
@@ -130,7 +128,7 @@ will catch the error, send it to Trakerr and then repanic in the same method.
 ```
 
 ## Initializing Trakerr
-Due to the nature of golang, Trakerr can be initialized in one of two ways. The first way with defaults, is relatively self explanatory.
+Due to the nature of golang, Trakerr is initalized to default values with the constructor.
 ```golang
 func NewTrakerrClientWithDefaults(
 	apiKey string,
@@ -139,34 +137,22 @@ func NewTrakerrClientWithDefaults(
 ```
 The contextEnvName name is intended to be used as a string identifier as to what your codebase is for; release, development, prototype. You can use it for whatever you denote as useful. The contextAppVersion is useful for a codebase version identifier, or perhaps some other useful metric for the error.
 
-Looking at the second call we're exposed to a lot of what the first call defaults.
-
-```golang
-func NewTrakerrClient(
-	apiKey string,
-	url string,
-	contextAppVersion string,
-	contextEnvName string,
-	contextEnvVersion string,
-	contextEnvHostname string,
-	contextAppOS string,
-	contextAppOSVersion string,
-	contextDataCenter string,
-	contextDataCenterRegion string) *TrakerrClient
-```
-A lot of these are populated by default value by the first call, but you can populate them with whatever string data you want. Here is an indepth look at each of those.
+The TrakerrClient struct however has a lot of exposed properties. The benifit to setting these after you create the TrakerrClient is that AppEvent will default it's values against the TrakerClient that created it. This way if there is a value that all your AppEvents uses, and the constructor default value currently doesn't suit you; it may be easier to change it in TrakerrClient as it will become the default value for all AppEvents created after. A lot of these are populated by default value by the constructor, but you can populate them with whatever string data you want. The following table provides an in depth look at each of those.
 
 Name | Type | Description | Notes
 ------------ | ------------- | -------------  | -------------
 **apiKey** | **string** | API key generated for the application | 
-**url** | **string** |(optional) The URL to send to. You will mostly want to leave this empty string to send to trakerr. | [optional if passed `""`]
-**contextAppVersion** | **string** | (optional) application version information. | [optional if passed `""`] Default value: "1.0" 
-**contextEnvName** | **string** | (optional) one of development, staging, production; or a custom string. | [optional if passed `""`] Default Value: "develoment"
-**contextEnvHostname** | **string** | (optional) hostname or ID of environment. | [optional if passed `""`] Default value: os.hostname()
-**contextAppOS** | **string** | (optional) OS the application is running on. | [optional if passed `""`] Default value: OS name (ie. Windows, MacOS) (Currently being reworked).
-**contextAppOSVersion** | **string** | (optional) OS Version the application is running on. | [optional if passed `""`] Default value: System architecture string (Currently being reworked).
-**contextDataCenter** | **string** | (optional) Data center the application is running on or connected to. | [optional if passed `""`]
-**contextDataCenterRegion** | **string** | (optional) Data center region. | [optional if passed `""`]
+**contextAppVersion** | **string** | Application version information. | Default value: "1.0" 
+**contextDevelopmentStage** | **string** | One of development, staging, production; or a custom string. | Default Value: "develoment"
+**contextEnvLanguage** | **string** | OS and Arch name the compiler is targeting for the application. | Default value: "Golang"
+**contextEnvName** | **string** | Constant string representing the language the application is in. | Default Value: runtime.GOOS + " " + runtime.GOARCH
+**contextEnvHostname** | **string** | Hostname or ID of environment. | Default value: os.hostname()
+**contextAppOS** | **string** | OS the application is running on. | Default value: OS name (ie. Windows, MacOS) (Currently being reworked).
+**contextAppOSVersion** | **string** | OS Version the application is running on. | Default value: System architecture string (Currently being reworked).
+contextAppOSBrowser
+contextAppOSBrowserVersion
+**contextDataCenter** | **string** | Data center the application is running on or connected to. | Defaults to empty (`""`)
+**contextDataCenterRegion** | **string** | Data center region. | Defaults to empty (`""`)
 
 
 ## Documentation For Models
