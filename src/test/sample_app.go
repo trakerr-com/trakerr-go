@@ -9,12 +9,12 @@ import (
 func main() {
 	var client *trakerr.TrakerrClient
 	if len(os.Args) > 1 {
-		client = trakerr.NewTrakerrClientWithDefaults(
+		client = trakerr.NewTrakerrClient(
 			os.Args[1],
 			"1.0",
 			"development")
 	} else {
-		client = trakerr.NewTrakerrClientWithDefaults(
+		client = trakerr.NewTrakerrClient(
 			"<Api Key here>",
 			"1.0",
 			"development")
