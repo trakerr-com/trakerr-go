@@ -147,8 +147,8 @@ Name | Type | Description | Notes
 **contextEnvLanguage** | **string** | OS and Arch name the compiler is targeting for the application. | Default value: "Golang"
 **contextEnvName** | **string** | Constant string representing the language the application is in. | Default Value: runtime.GOOS + " " + runtime.GOARCH
 **contextEnvHostname** | **string** | Hostname or ID of environment. | Default value: os.hostname()
-**contextAppOS** | **string** | OS the application is running on. | Default value: OS name (ie. Windows, MacOS) (Currently being reworked).
-**contextAppOSVersion** | **string** | OS Version the application is running on. | Default value: System architecture string (Currently being reworked).
+**contextAppOS** | **string** | OS the application is running on. | Default value: OS name (ie. Windows, MacOS).
+**contextAppOSVersion** | **string** | OS Version the application is running on. | Default value: OS Version.
 **contextAppOSBrowser** | **string** | An optional string browser name the application is running on. | Defaults to empty (`""`)
 **contextAppOSBrowserVersion** | **string** | An optional string browser version the application is running on. | Defaults to empty (`""`)
 **contextDataCenter** | **string** | Data center the application is running on or connected to. | Defaults to empty (`""`)
