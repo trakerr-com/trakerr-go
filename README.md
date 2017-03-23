@@ -144,11 +144,12 @@ Name | Type | Description | Notes
 **apiKey** | **string** | API key generated for the application | 
 **contextAppVersion** | **string** | Application version information. | Default value: "1.0" 
 **contextDevelopmentStage** | **string** | One of development, staging, production; or a custom string. | Default Value: "develoment"
-**contextEnvLanguage** | **string** | OS and Arch name the compiler is targeting for the application. | Default value: "Golang"
-**contextEnvName** | **string** | Constant string representing the language the application is in. | Default Value: runtime.GOOS + " " + runtime.GOARCH
+**contextEnvLanguage** | **string** | Constant string representing the language the application is in. | Default value: "Golang"
+**contextEnvName** | **string** | OS and Arch name the compiler is targeting for the application. | Default Value: runtime.GOOS + " " + runtime.GOARCH
+**contextEnvVersion** | **string** | Version of the go runtime the program is compiled on. | Default Value: runtime.Version()
 **contextEnvHostname** | **string** | Hostname or ID of environment. | Default value: os.hostname()
-**contextAppOS** | **string** | OS the application is running on. | Default value: OS name (ie. Windows, MacOS) (Currently being reworked).
-**contextAppOSVersion** | **string** | OS Version the application is running on. | Default value: System architecture string (Currently being reworked).
+**contextAppOS** | **string** | OS the application is running on. | Default value: OS name (ie. Windows, MacOS).
+**contextAppOSVersion** | **string** | OS Version the application is running on. | Default value: OS Version.
 **contextAppOSBrowser** | **string** | An optional string browser name the application is running on. | Defaults to empty (`""`)
 **contextAppOSBrowserVersion** | **string** | An optional string browser version the application is running on. | Defaults to empty (`""`)
 **contextDataCenter** | **string** | Data center the application is running on or connected to. | Defaults to empty (`""`)
