@@ -1,4 +1,4 @@
-# Trakerr-php API client
+# Trakerr-Go API client
 
 Get your application events and errors to Trakerr via the *Trakerr API*.
 
