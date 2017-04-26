@@ -18,14 +18,14 @@ And then in your imports add this
     import "github.com/trakerr-io/trakerr-go/src/trakerr"
 
 ```
-## Getting Started
 
+## Getting Started
 There are a few options (illustrated below with comment Option-#) to send events to Trakerr. If you would like to generate some sample events quickly and see the API in action, you can:
 
 ```bash
 go get github.com/trakerr-io/trakerr-go/src/test
 ```
-and then cd into the the folder. Once there, you can simple do:
+and then cd into the the folder. Once there, you can simply do:
 
 ```bash
 go run sample_app.go <API key here>
@@ -33,7 +33,7 @@ go run sample_app.go <API key here>
 To generate an error and get started on the site.
 
 ### Creating a new client
-
+Once you have gotten the library with the steps above you can import the trakerr library. You may also wish to import the error standard library. Then you can initialize TrakerrClient from any method:
 
 ```golang
 package main
@@ -46,8 +46,8 @@ import (
 func main() {
 	client := trakerr.NewTrakerrClient(
 		"<replace with your API key>",
-		"1.0",
-		"development")
+		"<your app version>",
+		"<your development stage>")
     ...
 }
 ```
@@ -68,7 +68,7 @@ We suggest storing these in a struct for global error handling:
 ```golang
 type TestSession struct {
 	client   *trakerr.TrakerrClient
-	appEvent *trakerr.AppEvent
+	appEvent *trakerr.AppEvent //store as many AppEvents as you need to cover.
 }
 ```
 
@@ -78,22 +78,24 @@ And initializing it simply with the above methods.
 ts := TestSession{client, appEvent}
 ```
 
-We can then simply access the struct when we want to keep a precautionary defer. And then calling one of the methods that recover from the panic in Traker Client.
+We can then simply pass the code section relevent AppEvent from the struct when we want to keep a precautionary defer through TrakerrClient's recovery methods.
 
 ```golang
-defer session.client.RecoverWithAppEvent("Error", session.appEvent)
+defer ts.client.RecoverWithAppEvent("Error", ts.appEvent)
 ```
 
 Recover catches the panic and recover, while sending the error to Trakerr. If you wish to handle the error your own way,
 
 ```golang
-defer session.client.NotifyWithAppEvent("Error", session.appEvent)
+defer ts.client.NotifyWithAppEvent("Error", ts.appEvent)
 ```
 
 will catch the error, send it to Trakerr and then repanic in the same method.
 
 
 ### Option-2: Send an error to trakerr programmatically
+You can manually send an error without using the panic subroutines. Create a new error manually as a result of an action and then pass it to TrakerrClient's `SendError()` function.
+
 ```golang
 	err := errors.New("Something bad happened here")
 
@@ -102,6 +104,8 @@ will catch the error, send it to Trakerr and then repanic in the same method.
 ```
 
 ### Option-3: Send an error to trakerr programmatically with custom properties
+You can follow the above steps, but instead pass the error into `CreateAppEventFromError()`. This will allow you to send custom properties to the app event before you send it.
+
 ```golang
 	err := errors.New("Something bad happened here")
 
@@ -116,6 +120,8 @@ will catch the error, send it to Trakerr and then repanic in the same method.
 ```
 
 ### Option-4: Send an event including non-exceptions to Trakerr
+Sending a non-error uses a similar process as above, but skips the step with the error. Be sure to fill in the type and message when sending a non-error!
+
 ```golang
 	// Option-3: send event manually
 	appEvent := client.NewAppEvent("Info", "custom classification", "SomeType", "SomeMessage")
@@ -129,6 +135,7 @@ will catch the error, send it to Trakerr and then repanic in the same method.
 
 ## Initializing Trakerr
 Due to the nature of golang, Trakerr is initalized to default values with the constructor.
+
 ```golang
 func NewTrakerrClientWithDefaults(
 	apiKey string,
