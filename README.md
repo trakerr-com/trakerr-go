@@ -28,7 +28,7 @@ go get github.com/trakerr-io/trakerr-go/src/test
 and then cd into the the folder. Once there, you can simply do:
 
 ```bash
-go run sample_app.go <API key here>
+go run sample_app.go <api-key>
 ```
 To generate an error and get started on the site.
 
@@ -45,7 +45,7 @@ import (
 
 func main() {
 	client := trakerr.NewTrakerrClient(
-		"<replace with your API key>",
+		"<api-key>",
 		"<your app version>",
 		"<your development stage>")
     ...
