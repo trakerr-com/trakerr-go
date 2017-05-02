@@ -1,4 +1,4 @@
-# Trakerr-Go API client
+# Trakerr - Go API client
 
 Get your application events and errors to Trakerr via the *Trakerr API*.
 
@@ -19,7 +19,7 @@ And then in your imports add this
 
 ```
 
-## Getting Started
+## Detailed Integration Guide
 There are a few options (illustrated below with comment Option-#) to send events to Trakerr. If you would like to generate some sample events quickly and see the API in action, you can:
 
 ```bash
@@ -148,18 +148,18 @@ The TrakerrClient struct however has a lot of exposed properties. The benefit to
 Name | Type | Description | Notes
 ------------ | ------------- | -------------  | -------------
 **apiKey** | **string** | API key generated for the application | 
-**contextAppVersion** | **string** | Application version information. | Default value: "1.0" 
-**contextDevelopmentStage** | **string** | One of development, staging, production; or a custom string. | Default Value: "develoment"
+**contextAppVersion** | **string** | Application version information. | Default value: `1.0`
+**contextDevelopmentStage** | **string** | One of development, staging, production; or a custom string. | Default Value: `development`
 **contextEnvLanguage** | **string** | Constant string representing the language the application is in. | Default value: "Golang"
 **contextEnvName** | **string** | OS and Arch name the compiler is targeting for the application. | Default Value: runtime.GOOS + " " + runtime.GOARCH
 **contextEnvVersion** | **string** | Version of the go runtime the program is compiled on. | Default Value: runtime.Version()
 **contextEnvHostname** | **string** | Hostname or ID of environment. | Default value: os.hostname()
 **contextAppOS** | **string** | OS the application is running on. | Default value: OS name (ie. Windows, MacOS).
 **contextAppOSVersion** | **string** | OS Version the application is running on. | Default value: OS Version.
-**contextAppOSBrowser** | **string** | An optional string browser name the application is running on. | Defaults to empty (`""`)
-**contextAppOSBrowserVersion** | **string** | An optional string browser version the application is running on. | Defaults to empty (`""`)
-**contextDataCenter** | **string** | Data center the application is running on or connected to. | Defaults to empty (`""`)
-**contextDataCenterRegion** | **string** | Data center region. | Defaults to empty (`""`)
+**contextAppOSBrowser** | **string** | An optional string browser name the application is running on. | Defaults to `empty string` (`""`)
+**contextAppOSBrowserVersion** | **string** | An optional string browser version the application is running on. | Defaults to `empty string` (`""`)
+**contextDataCenter** | **string** | Data center the application is running on or connected to. | Defaults to `empty string` (`""`)
+**contextDataCenterRegion** | **string** | Data center region. | Defaults to `empty string` (`""`)
 
 ## Documentation For Models
 
