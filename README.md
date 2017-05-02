@@ -2,9 +2,9 @@
 
 Get your application events and errors to Trakerr via the *Trakerr API*.
 
-## Overview
-- API version: 1.0.0
-- Package version: 1.0.0
+## Requirements
+go version 1.7.5+
+
 
 ## Installation
 From the root directory issue the following
