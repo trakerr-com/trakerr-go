@@ -5,7 +5,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **ApiKey** | **string** | API key generated for the application | [default to null]
 **LogLevel** | **string** | (optional) Logging level, one of &#39;debug&#39;,&#39;info&#39;,&#39;warning&#39;,&#39;error&#39;, &#39;fatal&#39;, defaults to &#39;error&#39; | [optional] [default to null]
-**Classification** | **string** | (optional) one of &#39;error&#39; or a custom string for non-errors, defaults to &#39;error&#39; | [default to null]
+**Classification** | **string** | (optional) one of &#39;issue&#39; or a custom string for non-issues, defaults to &#39;issue&#39; | [default to null]
 **EventType** | **string** | type of the event or error (eg. NullPointerException) | [default to null]
 **EventMessage** | **string** | message containing details of the event or error | [default to null]
 **EventTime** | **int64** | (optional) event time in ms since epoch | [optional] [default to null]
@@ -24,6 +24,14 @@ Name | Type | Description | Notes
 **ContextAppOSVersion** | **string** | (optional) OS version the application is running on | [optional] [default to null]
 **ContextDataCenter** | **string** | (optional) Data center the application is running on or connected to | [optional] [default to null]
 **ContextDataCenterRegion** | **string** | (optional) Data center region | [optional] [default to null]
+**ContextTags** | **[]string** |  | [optional] [default to null]
+**ContextURL** | **string** | (optional) The full URL when running in a browser when the event was generated. | [optional] [default to null]
+**ContextOperationTimeMillis** | **int64** | (optional) duration that this event took to occur in millis. Example - database call time in millis. | [optional] [default to null]
+**ContextCpuPercentage** | **int32** | (optional) CPU utilization as a percent when event occured | [optional] [default to null]
+**ContextMemoryPercentage** | **int32** | (optional) Memory utilization as a percent when event occured | [optional] [default to null]
+**ContextCrossAppCorrelationId** | **string** | (optional) Cross application correlation ID | [optional] [default to null]
+**ContextDevice** | **string** | (optional) Device information | [optional] [default to null]
+**ContextAppSku** | **string** | (optional) Application SKU | [optional] [default to null]
 **CustomProperties** | [**CustomData**](CustomData.md) |  | [optional] [default to null]
 **CustomSegments** | [**CustomData**](CustomData.md) |  | [optional] [default to null]
 
