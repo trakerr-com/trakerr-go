@@ -2,7 +2,22 @@
 
 Get your application events and errors to Trakerr via the *Trakerr API*.
 
-## Requirements
+You can send both errors and non-errors (plain log statements, for example) to Trakerr with this API.
+
+## Overview
+
+The options presented in the integration guides are primarily oriented around sending errors or warnings without additional parameters.
+**Option-4 in the detailed integration guide** describes how you could send a non-error (or any log statement) along with additional parameters.
+
+The SDK takes performance impact seriously and all communication between the SDK <=> Trakerr avoids blocking the calling function. The SDK also applies asynchronous patterns where applicable.
+
+A Trakerr *Event* is what is created by this SDK and is then sent to Trakerr for Trakerr to capture. A Trakerr *Event* can consist of various parameters as described here in [Model.AppEvent](https://github.com/trakerr-io/trakerr-csharp/blob/master/generated/docs/AppEvent.md).
+Some of these parameters are populated by default and others are optional and can be supplied by you.
+
+Since some of these parameters are common across all event's, the API has the option of setting these on the
+TrakerrClient instance (described towards the bottom) and offers a factory API for creating AppEvent's.
+
+### Requirements
 go version 1.7.5+
 
 
